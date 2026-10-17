@@ -1,4 +1,4 @@
-import { deriveSpirit, varietyBudget, artwork, CHARACTER_GROUPS } from '@spirits/core';
+import { deriveSpirit, varietyBudget, artwork, CHARACTER_GROUPS } from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 const count = Number(process.argv[2] ?? 10000);
 if (!Number.isInteger(count) || count < 1 || count > 100000)

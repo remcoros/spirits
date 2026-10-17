@@ -1,4 +1,4 @@
-import { createSpirit, renderSpirit, type SpiritRecipe } from '@spirits/core';
+import { createSpirit, renderSpirit, type SpiritRecipe } from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';

@@ -72,7 +72,8 @@ npm run build:lib          # required before the first dev run
 npm run dev                # public page on 127.0.0.1:5187, lab at /lab/
 npm run check              # library builds + strict TypeScript checks
 npm test                   # public contracts and final QR raster decoding
-npm run build              # libraries, downloads and static site
+npm run build              # libraries, release assets and static site
+npm run build:assets       # build libraries and stage release assets
 npm run test:packages      # isolated tarball and standalone-module consumers
 npm run test:browser       # built site; owns temporary preview port 5287
 npm run audit:variety -- 10000
@@ -83,7 +84,7 @@ npm run format:check       # formatting check without mutation
 
 Rebuild libraries after editing their source; the dev app consumes built workspace exports. Restart the owned Vite server if the dependency optimizer is stale. Development uses strict port 5187, built preview 4187, browser checks 5287. Inspect ownership before stopping processes. `SPIRITS_BROWSER` overrides the browser test's default `/usr/bin/google-chrome`.
 
-`npm run build` writes local tarballs, standalone ESM, SVG data, notices, a download manifest and a source ZIP into ignored `public/downloads/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The source ZIP is assembled with Node from the explicit `scripts/source-files.json` allowlist; add intended new source files there and keep private/local files out. Downloaded documentation preserves its relative links.
+`npm run build` writes local tarballs, standalone ESM, catalogue/reference data, notices and a manifest into ignored `dist/release/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The website links to GitHub and `docs/usage.md`; package downloads come from npm and tagged GitHub Releases. Do not restore the former PoC source ZIP or website package-download tree. Generated avatar/QR SVG and PNG exports remain part of both applications.
 
 Run checks appropriate to the change; see [validation.md](docs/validation.md). A software decode, visual screenshot, package-consumer test and real wallet-camera/print scan are different evidence. Chrome's native barcode detector may be unavailable; report the skip accurately. Physical device and print reliability must be validated separately before release.
 

@@ -1,21 +1,7 @@
-import '@fontsource/space-grotesk/500.css';
-import '@fontsource/space-grotesk/600.css';
-import '@fontsource/space-grotesk/700.css';
-import '@fontsource/manrope/400.css';
-import '@fontsource/manrope/700.css';
-import './styles.css';
-import { SpiritAddressError } from '@spirits/core';
-import { createSpiritQr } from '@spirits/qr';
+import { SpiritAddressError } from '@remcoros/spirits';
+import { createSpiritQr } from '@remcoros/spirits-qr';
 import { fixtureAddress } from './shared/fixtures.js';
-import {
-  $,
-  addressRecovery,
-  describedSpirit,
-  download,
-  loadDownloads,
-  svgToPng,
-  verifyQr,
-} from './shared/ui.js';
+import { $, addressRecovery, describedSpirit, download, svgToPng, verifyQr } from './shared/ui.js';
 const sample = fixtureAddress('hello-spirit');
 $('brand-ghost').innerHTML = describedSpirit(fixtureAddress('brand'), 64).svg;
 $('preview').innerHTML = describedSpirit(sample, 512).svg;
@@ -24,7 +10,6 @@ $('parade').innerHTML = Array.from(
   { length: 8 },
   (_, i) => describedSpirit(fixtureAddress(`parade-${i}`), 160).svg,
 ).join('');
-void loadDownloads('./downloads/');
 const input = $<HTMLTextAreaElement>('address'),
   form = $<HTMLFormElement>('generator-form');
 const exportKinds = ['svg', 'png'] as const;

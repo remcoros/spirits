@@ -15,7 +15,7 @@ import {
   CHARACTER_GROUPS,
   varietyBudget,
   SpiritAddressError,
-} from '@spirits/core';
+} from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 
 test('canonical encoding, network and valid public points', () => {

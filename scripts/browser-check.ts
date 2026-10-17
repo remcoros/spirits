@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 import type { QRCode } from 'jsqr';
-import { artwork } from '@spirits/core';
+import { artwork } from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 // Browser-native canvas callbacks are held to reproduce real asynchronous races.
 // This changes only the test page, without test-only paths in application code.
@@ -277,35 +277,20 @@ try {
     (await page.locator('#preview-detail').textContent())?.includes('Public example keys'),
     'Manually pasted known fixture keeps its public-key warning',
   );
-  const manifest = await (await fetch(`${base}/downloads/manifest.json`)).json();
-  assert.equal(manifest.schemaVersion, 1);
-  await page.waitForFunction(() =>
-    Boolean(document.querySelector('a[data-download=core]')?.getAttribute('href')),
+  assert.deepEqual(
+    await page
+      .locator('.developer-links a')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+    [
+      'https://github.com/remcoros/spirits/blob/main/docs/usage.md',
+      'https://github.com/remcoros/spirits',
+    ],
   );
-  assert.ok(
-    (await page.locator('a[data-download=core]').getAttribute('href'))?.endsWith(
-      manifest.packages.core.file,
-    ),
-  );
-  assert.ok(
-    (await page.locator('a[data-download=qr]').getAttribute('href'))?.endsWith(
-      manifest.packages.qr.file,
-    ),
-  );
-  for (const filename of [
-    manifest.packages.core.file,
-    manifest.packages.qr.file,
-    ...Object.values(manifest.files),
-  ] as string[]) {
-    const response = await fetch(`${base}/downloads/${filename}`);
-    assert.equal(response.status, 200, filename);
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    assert.ok(bytes.length > 100, filename);
-    if (filename.endsWith('.tgz'))
-      assert.deepEqual(Array.from(bytes.slice(0, 2)), [31, 139], filename);
-    if (filename.endsWith('.zip'))
-      assert.deepEqual(Array.from(bytes.slice(0, 2)), [80, 75], filename);
-  }
+  assert.equal(await page.locator('a[data-download]').count(), 0);
+  assert.equal(await page.locator('a[href$=".zip"], a[href$=".tgz"]').count(), 0);
+  const notices = await fetch(`${base}/third-party/THIRD-PARTY.md`);
+  assert.equal(notices.status, 200, 'The website retains its third-party notices');
+  assert.ok((await notices.text()).includes('Third-party notices'));
   await page.goto(base + '/lab/');
   await page.locator('#characters .contact-cell').first().waitFor();
   assert.equal(await page.locator('#characters .contact-cell').count(), 48);
@@ -504,7 +489,9 @@ try {
     pngDecode: true,
     nativeBarcodeDetectorAvailable: native.available,
     nativeDecoded,
-    downloads: true,
+    generatedImageExports: true,
+    documentationLinks: true,
+    pocArchiveLinks: false,
     invalidInput: true,
     staleExportInvalidation: true,
     delayedPngOwnership: true,

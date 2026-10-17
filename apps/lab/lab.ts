@@ -1,9 +1,3 @@
-import '@fontsource/space-grotesk/500.css';
-import '@fontsource/space-grotesk/600.css';
-import '@fontsource/space-grotesk/700.css';
-import '@fontsource/manrope/400.css';
-import '@fontsource/manrope/700.css';
-import '../styles.css';
 import {
   artwork,
   createSpirit,
@@ -16,19 +10,17 @@ import {
   CHARACTER_GROUPS,
   type AssetGroup,
   type SpiritRecipe,
-} from '@spirits/core';
-import { createSpiritQr } from '@spirits/qr';
+} from '@remcoros/spirits';
+import { createSpiritQr } from '@remcoros/spirits-qr';
 import { fixtureAddress } from '../shared/fixtures.js';
 import {
   $,
   addressRecovery,
   describedSpirit,
   download,
-  loadDownloads,
   spiritDescription,
   verifyQr,
 } from '../shared/ui.js';
-void loadDownloads('../downloads/');
 const seed = $<HTMLInputElement>('seed'),
   label = $<HTMLInputElement>('label'),
   network = $<HTMLSelectElement>('network'),

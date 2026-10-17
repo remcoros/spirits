@@ -1,0 +1,128 @@
+name: Tagged release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v-prefixed release tag on main
+        required: true
+        type: string
+      operation:
+        description: Prepare tested artifacts, or publish them after npm setup
+        required: true
+        default: prepare
+        type: choice
+        options: [prepare, publish, finalize-bootstrap]
+
+permissions:
+  contents: read
+
+# Serialize all versions so channel promotion cannot race. Preserve every pending tag.
+concurrency:
+  group: tagged-release
+  cancel-in-progress: false
+  queue: max
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+
+jobs:
+  verify:
+    if: github.repository == 'remcoros/spirits'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Pin npm with OIDC dist-tag support
+        run: npm install --global npm@11.21.0 --ignore-scripts
+      - name: Validate tag, clean source, versions and main ancestry
+        run: node scripts/release.mjs check
+      - name: Use the tagged commit timestamp in artifacts
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:packages
+      - name: Install the browser test's Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify the final built site and exported images
+        run: |
+          SPIRITS_BROWSER="$(node --input-type=module -e "import {chromium} from 'playwright'; process.stdout.write(chromium.executablePath())")" npm run test:browser
+      - name: Freeze release checksums
+        run: node scripts/release.mjs prepare
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ env.RELEASE_TAG }}
+          path: dist/release/
+          if-no-files-found: error
+          retention-days: 30
+
+  npm:
+    needs: verify
+    if: (vars.NPM_PUBLISH_ENABLED == 'true' && (github.event_name == 'push' || inputs.operation == 'publish')) || (github.event_name == 'workflow_dispatch' && inputs.operation == 'finalize-bootstrap')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm install --global npm@11.21.0 --ignore-scripts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-${{ env.RELEASE_TAG }}
+          path: dist/release/
+      # No npm token: both package settings must trust this workflow/environment,
+      # independently allowing direct publish and dist-tag operations.
+      - name: Publish exact tarballs, verify registry consumers, then promote channel
+        if: inputs.operation != 'finalize-bootstrap'
+        run: node scripts/release.mjs publish
+      - name: Verify the manually bootstrapped first release without npm writes
+        if: inputs.operation == 'finalize-bootstrap'
+        run: node scripts/release.mjs verify-bootstrap
+
+  github:
+    needs: npm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-${{ env.RELEASE_TAG }}
+          path: dist/release/
+      - name: Upload verified assets to a draft and publish the GitHub Release
+        run: node scripts/release.mjs github
+        env:
+          GH_TOKEN: ${{ github.token }}

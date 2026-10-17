@@ -1,4 +1,9 @@
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · genre: playful · macrostructure: Workbench · theme: Hum · nav: N7 · footer: Ft5 · audience: Bitcoin users and developers · use: create a Spirit and payment QR · tone: playful */
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/700.css';
 @import './tokens.css';
 * {
   box-sizing: border-box;

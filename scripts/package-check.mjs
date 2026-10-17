@@ -4,9 +4,9 @@ import { join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { readDownloadManifest } from './distribution.mjs';
+import { readReleaseManifest } from './distribution.mjs';
 const root = process.cwd(),
-  manifest = await readDownloadManifest(root).catch((error) => {
+  manifest = await readReleaseManifest(root).catch((error) => {
     console.error(error.message);
     process.exit(1);
   }),
@@ -29,15 +29,15 @@ try {
       '--ignore-scripts',
       '--no-audit',
       '--no-fund',
-      resolve('public/downloads', manifest.packages.core.file),
-      resolve('public/downloads', manifest.packages.qr.file),
+      resolve('dist/release', manifest.packages.core.file),
+      resolve('dist/release', manifest.packages.qr.file),
     ],
     { cwd: directory, stdio: 'pipe' },
   );
   const vectors = JSON.parse(await readFile('spec/test-vectors.json', 'utf8'));
   const address = vectors[0].address;
-  const consumer = `import {createSpirit,parseAddress} from '@spirits/core';
-import {createSpiritQr} from '@spirits/qr';
+  const consumer = `import {createSpirit,parseAddress} from '@remcoros/spirits';
+import {createSpiritQr} from '@remcoros/spirits-qr';
 const address=${JSON.stringify(address)};
 const spirit=createSpirit(address),qr=createSpiritQr(address);
 if(qr.address!==address||!spirit.svg.includes('<svg')||!qr.svg.includes('<svg')||parseAddress(address).network!=='mainnet')throw new Error('Packaged consumer failed');
@@ -50,7 +50,7 @@ console.log(JSON.stringify({address:qr.address,scheme:spirit.recipe.scheme,versi
   );
   await writeFile(
     join(directory, 'consumer.ts'),
-    `import {createSpirit, type SpiritRecipe} from '@spirits/core';\nimport {createSpiritQr} from '@spirits/qr';\nconst {recipe}: {recipe:SpiritRecipe}=createSpirit(${JSON.stringify(address)});\nconst qr=createSpiritQr(recipe.address);\nconsole.log(qr.svg);\n`,
+    `import {createSpirit, type SpiritRecipe} from '@remcoros/spirits';\nimport {createSpiritQr} from '@remcoros/spirits-qr';\nconst {recipe}: {recipe:SpiritRecipe}=createSpirit(${JSON.stringify(address)});\nconst qr=createSpiritQr(recipe.address);\nconsole.log(qr.svg);\n`,
   );
   execFileSync(
     process.execPath,
@@ -70,10 +70,10 @@ console.log(JSON.stringify({address:qr.address,scheme:spirit.recipe.scheme,versi
     { cwd: directory, stdio: 'pipe' },
   );
   const standaloneCore = await import(
-    pathToFileURL(resolve('public/downloads', manifest.files.coreModule)).href
+    pathToFileURL(resolve('dist/release', manifest.files.coreModule)).href
   );
   const standaloneQr = await import(
-    pathToFileURL(resolve('public/downloads', manifest.files.qrModule)).href
+    pathToFileURL(resolve('dist/release', manifest.files.qrModule)).href
   );
   if (
     createHash('sha256').update(standaloneCore.createSpirit(address).svg).digest('hex') !==

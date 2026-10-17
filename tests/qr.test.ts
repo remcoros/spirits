@@ -3,8 +3,13 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 import type { QRCode, Options } from 'jsqr';
-import { createSpiritQr, canPlaceLogo, canPlaceLogoCircle, alignmentPositions } from '@spirits/qr';
-import { artwork, deriveSpirit, renderSpirit } from '@spirits/core';
+import {
+  createSpiritQr,
+  canPlaceLogo,
+  canPlaceLogoCircle,
+  alignmentPositions,
+} from '@remcoros/spirits-qr';
+import { artwork, deriveSpirit, renderSpirit } from '@remcoros/spirits';
 import { qrcodegen } from '../packages/qr/src/vendor/qrcodegen.js';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 

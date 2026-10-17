@@ -2,7 +2,7 @@
 import { secp256k1 } from '@noble/curves/secp256k1.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { concatBytes, utf8ToBytes, bytesToHex } from '@noble/hashes/utils.js';
-import { encodeAddress } from '@spirits/core';
+import { encodeAddress } from '@remcoros/spirits';
 const ORDER = secp256k1.Point.Fn.ORDER;
 const scalar = (bytes: Uint8Array) => BigInt('0x' + bytesToHex(bytes));
 const key = (text: string) =>

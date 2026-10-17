@@ -1,6 +1,6 @@
 {
   "name": "spirits-workspace",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build:lib": "tsc -b packages/core packages/qr && node scripts/bundle.mjs",
-    "build": "npm run build:lib && npm run downloads && vite build",
-    "downloads": "node scripts/downloads.mjs",
+    "build:assets": "npm run build:lib && node scripts/build-assets.mjs",
+    "build": "npm run build:assets && vite build",
     "check": "npm run build:lib && tsc --noEmit",
     "test": "npm run build:lib && tsx --test tests/*.test.ts",
     "test:browser": "tsx scripts/browser-check.ts",

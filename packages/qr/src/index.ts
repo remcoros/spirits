@@ -1,4 +1,4 @@
-import { deriveSpirit, parseAddress, renderSpirit } from '@spirits/core';
+import { deriveSpirit, parseAddress, renderSpirit } from '@remcoros/spirits';
 import { qrcodegen } from './vendor/qrcodegen.js';
 
 export interface QrOptions {

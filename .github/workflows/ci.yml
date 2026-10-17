@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+    inputs:
+      pages_artifact:
+        description: Upload the validated static site for a Pages deployment.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Pin npm
+        run: npm install --global npm@11.21.0
+      - name: Install exact dependencies
+        run: npm ci
+      - name: Check formatting
+        run: npm run format:check
+      - name: Check TypeScript and library builds
+        run: npm run check
+      - name: Test library contracts and final QR images
+        run: npm test
+      - name: Build release assets and static site
+        run: npm run build
+      - name: Test isolated package consumers
+        run: npm run test:packages
+      - name: Install the matching Playwright browser
+        run: |
+          npx --no-install playwright install --with-deps chromium
+          node --input-type=module <<'NODE' >> "$GITHUB_ENV"
+          import { accessSync, constants } from 'node:fs';
+          import { chromium } from 'playwright';
+          const executable = chromium.executablePath();
+          accessSync(executable, constants.X_OK);
+          console.log(`SPIRITS_BROWSER=${executable}`);
+          NODE
+      - name: Test the built site in Chromium
+        run: npm run test:browser
+      - name: Upload the validated site for Pages
+        if: inputs.pages_artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/site

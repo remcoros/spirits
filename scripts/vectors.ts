@@ -1,5 +1,5 @@
 // Explicitly regenerate only when intentionally changing the experimental v0 mapping/art.
-import { createSpirit } from '@spirits/core';
+import { createSpirit } from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';

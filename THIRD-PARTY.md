@@ -11,6 +11,7 @@ retain their licences. Installed dependencies include complete notices.
 - BIP352 address fixtures: BSD-2-Clause; see spec/bip352-source.json.
 
 The standalone bundles preserve upstream legal comments. npm installs retain
-notices in their dependency packages. The source archive contains this file
-and the pinned QR encoder's complete notice. For a distributed static site,
-bundled dependency licence texts are included in downloads/dependency-licenses/.
+notices in their dependency packages. Release assets include this file, the
+pinned QR encoder's complete notice, and complete dependency licence texts.
+The built static site retains its notices under third-party/, linked from
+both page footers.

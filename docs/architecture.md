@@ -7,7 +7,7 @@ This is an application/library repository under a directory that also contains S
 One npm-workspace repository contains two independently distributable TypeScript packages and two static HTML applications:
 
 ```text
-@spirits/core ──► @spirits/qr
+@remcoros/spirits ──► @remcoros/spirits-qr
        │                │
        └────────┬───────┘
                 │
@@ -22,11 +22,11 @@ The arrow from core to QR indicates a dependency flowing into QR: QR imports cor
 
 The core requires no DOM, canvas, filesystem or network. SHA256 comes from `@noble/hashes`, Bech32m from `@scure/base`, and public point validation from `@noble/curves`. Exact versions are pinned. Each trait has an independent hash domain; no shared small PRNG state limits the selection space.
 
-The optional `@spirits/core/browser` entry point converts generated SVG to a PNG Blob using browser canvas. Raster conversion is kept out of the platform-neutral core. PNG bytes are not promised identical between different rasterisers.
+The optional `@remcoros/spirits/browser` entry point converts generated SVG to a PNG Blob using browser canvas. Raster conversion is kept out of the platform-neutral core. PNG bytes are not promised identical between different rasterisers.
 
 ## QR extension
 
-`@spirits/qr` imports core and a vendored, pinned MIT Project Nayuki encoder. Its high-level API accepts a public address, derives the corresponding Spirit and builds the QR from that same input. It does not accept unrelated user-supplied artwork in place of the derived Spirit.
+`@remcoros/spirits-qr` imports core and a vendored, pinned MIT Project Nayuki encoder. Its high-level API accepts a public address, derives the corresponding Spirit and builds the QR from that same input. It does not accept unrelated user-supplied artwork in place of the derived Spirit.
 
 Both decorated and plain QR output use standard complete-address text. The layout and evidence requirements are in [QR generation](qr.md).
 
@@ -40,9 +40,15 @@ The browser pages share library APIs and small UI/export helpers. There is no se
 
 ## Distribution
 
+Both HTML heads link the stylesheet directly, including the local font declarations. The browser discovers styling before application JavaScript executes; styles no longer depend on the development server's JavaScript injection. Font loading may still briefly use a styled fallback font because local fonts use `font-display: swap`.
+
 TypeScript builds generate ESM and declaration files. esbuild also produces independent standalone ESM files with dependencies and artwork bundled. Applications using the npm packages can share dependencies; importing both standalone modules includes duplicate bundled core code by design.
 
-The root is private. Package names are local POC identifiers, not a claim that an npm scope is registered or releases published. `npm run build` creates tarballs, standalone modules, the asset catalogue, reference notes, licence notices and a source ZIP, then builds both static pages into `dist/site/`. No publication or deployment is performed by that command. A generated `downloads/manifest.json` supplies current package versions and archive names to both pages, so the HTML does not hard-code a package release. Download links remain unavailable when build metadata is missing or invalid. The source archive uses the strict reviewed `scripts/source-files.json` allowlist and a dependency-free Node ZIP writer, retaining the documentation, specification and catalogue directory tree. Package-consumer checks compare the current source fingerprint and output SHA256 metadata to reject stale or missing build artifacts.
+The root is private. The two public packages share one version; the QR package depends on that exact core version. The first release is prepared as `0.1.0-beta.1`, using npm's `next` channel. These declarations do not imply that publication has happened.
+
+`npm run build` stages tarballs, standalone modules, the portable catalogue, reference data and licence notices under `dist/release/`, then builds both static pages into `dist/site/`. Package-consumer checks compare current package/build fingerprints and output SHA256 metadata to reject stale or missing artifacts. The website does not contain those package snapshots or a source ZIP. Its developer links lead to GitHub and the [usage guide](usage.md), which explains the npm packages and tagged release assets. SVG and PNG downloads generated from a visitor's address remain available locally.
+
+Pages deploys from `main`, so the live experimental generator can be ahead of the released libraries. Tagged releases build and validate a specific commit and distribute its assets through npm and GitHub Releases. Local build commands do not publish or deploy. See [releasing](releasing.md) and [hosting](hosting.md) for workflow and account configuration.
 
 ## Compatibility decisions
 

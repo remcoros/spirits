@@ -19,7 +19,7 @@ Open `http://127.0.0.1:5187/` for the public generator and `/lab/` for the devel
 ```sh
 npm run check          # library and application types
 npm test               # address, recipe, assets, and final QR image checks
-npm run build          # both libraries, downloads, and both static pages
+npm run build          # both libraries, release assets, and both static pages
 npm run preview        # built pages on http://127.0.0.1:4187/
 npm run test:browser   # built site: responsive UI, exports, lab and independent browser decoder
 npm run test:packages  # tarballs installed into a separate Node/TypeScript consumer
@@ -32,7 +32,7 @@ The browser check uses `/usr/bin/google-chrome` by default; set `SPIRITS_BROWSER
 
 ## Packages
 
-- `packages/core`: validate v0 addresses, derive a portable trait recipe, render SVG, and bundle all original assets. `@spirits/core/browser` adds browser-only PNG conversion.
+- `packages/core`: validate v0 addresses, derive a portable trait recipe, render SVG, and bundle all original assets. `@remcoros/spirits/browser` adds browser-only PNG conversion.
 - `packages/qr`: depends on core and a pinned, vendored MIT QR encoder from Project Nayuki; outputs standard QR SVG and layout metadata.
 - `apps/index.html`: public generator. All processing happens locally; fonts and scripts are self-hosted. No analytics, address lookup, user accounts or remote avatar service.
 - `apps/lab/index.html`: address inspector, reproducible test-address families, 48-character grids, 32/64/110px previews, catalogue, recipe inspection, and rendered QR decoding.
@@ -43,15 +43,15 @@ The development lab creates **public, disposable fixture keys**. Never receive r
 
 ## Integrate
 
-These are local POC packages, not published npm releases. `npm run build` creates tarballs and standalone ES modules under `public/downloads/` and in the built site.
+Start with the [usage guide](docs/usage.md) for npm installation, downloadable release assets, browser PNG conversion, and integration contracts. The first planned release is `0.1.0-beta.1`, on npm's `next` channel. Package and release pages become available after publication.
 
 ```sh
-npm install ./spirits-core-0.1.0.tgz ./spirits-qr-0.1.0.tgz
+npm install @remcoros/spirits@next @remcoros/spirits-qr@next
 ```
 
 ```ts
-import { createSpirit, deriveSpirit, renderSpirit, parseAddress } from '@spirits/core';
-import { createSpiritQr } from '@spirits/qr';
+import { createSpirit, deriveSpirit, renderSpirit, parseAddress } from '@remcoros/spirits';
+import { createSpiritQr } from '@remcoros/spirits-qr';
 
 const { svg, recipe } = createSpirit(address, { size: 512 });
 const sameImage = renderSpirit(recipe, { size: 512 });
@@ -63,7 +63,7 @@ The core has no DOM, canvas, network or filesystem dependency and works in Node 
 
 ```ts
 // Optional browser-only raster conversion:
-import { svgToPng } from '@spirits/core/browser';
+import { svgToPng } from '@remcoros/spirits/browser';
 const pngBlob = await svgToPng(svg);
 ```
 
@@ -81,10 +81,12 @@ Tests rasterise and decode final decorated SVGs across characters, labels, netwo
 
 ## Build and distribution
 
-`npm run build` makes `dist/site/` ready for static hosting, including the lab and downloads. `npm run dev` can be used before generating downloads; download links become available after `npm run downloads` or the full build. The download manifest records current package names and versions; the integration guide retains its linked documentation, vectors and catalogue. The source ZIP uses a reviewed allowlist in `scripts/source-files.json`, never a walk of arbitrary local files, and needs no Python installation. Neither command deploys or publishes anything. Actual npm names, hosting and release publication remain to be configured.
+`npm run build` prepares release assets under `dist/release/` and both static pages under `dist/site/`. `npm run build:assets` builds the libraries and stages the release assets. The manifest records package names, versions, source fingerprints and output hashes for package-consumer checks. The website links to GitHub and the usage guide; release assets are distributed through tagged GitHub Releases and npm. The former PoC source ZIP and website package downloads are removed. Local build commands do not deploy or publish anything.
+
+The GitHub workflows validate changes, deploy Pages from `main`, and publish npm packages and GitHub release assets from semantic-version `v` tags. Read [release setup](docs/releasing.md) for npm authentication, initial package creation and tagging; read [hosting setup](docs/hosting.md) for GitHub Pages and the planned `spirits.boo` custom domain.
 
 The asset authoring tool is `scripts/artwork.mjs`; generated assets are committed inputs, not regenerated during ordinary builds. To intentionally change experimental artwork, run the authoring tool, rebuild libraries, then `npx tsx scripts/vectors.ts`, review the visual differences and run checks. Do not regenerate vectors merely to make an unexpected test failure pass.
 
 ## Licences
 
-Original code: MIT, see `LICENSE`. Original artwork: CC0-1.0, see `ASSET-LICENSE` (including generated visual output). Upstream libraries retain their own licences. The QR encoder source, pinned provenance and full notice are in `packages/qr/THIRD-PARTY.md` and its source header. Font files use SIL OFL-1.1; downloaded source and tarballs include third-party notices. Extracted public BIP352 fixture addresses originate from the BSD-2-Clause BIP test vectors, recorded in `spec/bip352-source.json`.
+Original code: MIT, see `LICENSE`. Original artwork: CC0-1.0, see `ASSET-LICENSE` (including generated visual output). Upstream libraries retain their own licences. The QR encoder source, pinned provenance and full notice are in `packages/qr/THIRD-PARTY.md` and its source header. Font files use SIL OFL-1.1; release assets and the built site include third-party notices. Extracted public BIP352 fixture addresses originate from the BSD-2-Clause BIP test vectors, recorded in `spec/bip352-source.json`.

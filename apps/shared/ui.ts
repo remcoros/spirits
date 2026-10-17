@@ -1,11 +1,11 @@
-import { svgToPng } from '@spirits/core/browser';
+import { svgToPng } from '@remcoros/spirits/browser';
 import {
   assetName,
   deriveSpirit,
   renderSpirit,
   SpiritAddressError,
   type SpiritRecipe,
-} from '@spirits/core';
+} from '@remcoros/spirits';
 import type { QRCode, Options } from 'jsqr';
 export { svgToPng };
 
@@ -37,53 +37,6 @@ export function addressRecovery(error: unknown, value: string): string {
   }
 }
 
-/** Only same-site build metadata is fetched; addresses never participate in these URLs. */
-export async function loadDownloads(directory: string): Promise<void> {
-  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[data-download]'));
-  try {
-    const base = new URL(directory, document.baseURI);
-    const response = await fetch(new URL('manifest.json', base));
-    if (!response.ok) throw new Error('Downloads unavailable');
-    const manifest = await response.json();
-    if (manifest.schemaVersion !== 1) throw new Error('Unsupported download manifest');
-    const paths: Record<string, unknown> = {
-      core: manifest.packages?.core?.file,
-      qr: manifest.packages?.qr?.file,
-      ...manifest.files,
-    };
-    for (const link of links) {
-      const key = link.dataset.download!,
-        path = paths[key];
-      if (
-        typeof path !== 'string' ||
-        !/^[\w.-]+(?:\/[\w.-]+)*$/.test(path) ||
-        path.split('/').includes('..')
-      )
-        throw new Error('Invalid download path');
-      link.href = new URL(path, base).href;
-      link.removeAttribute('aria-disabled');
-      link.removeAttribute('tabindex');
-      if (key === 'core' || key === 'qr') {
-        const version = manifest.packages[key].version;
-        if (typeof version !== 'string' || !/^[\w.+-]+$/.test(version))
-          throw new Error('Invalid package version');
-        link.textContent = `${link.dataset.label} · v${version} ↓`;
-      }
-    }
-    const status = document.getElementById('downloads-status');
-    if (status)
-      status.textContent =
-        'Local POC downloads. These package names are not published npm releases.';
-  } catch {
-    for (const link of links) {
-      link.removeAttribute('href');
-      link.setAttribute('aria-disabled', 'true');
-      link.tabIndex = -1;
-    }
-    const status = document.getElementById('downloads-status');
-    if (status) status.textContent = 'Downloads are unavailable in this preview.';
-  }
-}
 export function download(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob),
     a = document.createElement('a');

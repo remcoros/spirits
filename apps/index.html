@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
     <meta
       name="description"
       content="A familiar little ghost for your Bitcoin Silent Payment address. Create your SPirit and a standard payment QR locally in your browser."
@@ -133,29 +134,17 @@
             CC0.
           </p>
           <div class="developer-links">
-            <a
-              data-download="core"
-              data-label="Core package"
-              aria-disabled="true"
-              tabindex="-1"
-              download
-              >Core package ↓</a
-            ><a
-              data-download="qr"
-              data-label="QR extension"
-              aria-disabled="true"
-              tabindex="-1"
-              download
-              >QR extension ↓</a
-            ><a data-download="source" aria-disabled="true" tabindex="-1" download>POC source ↓</a
-            ><a data-download="guide" aria-disabled="true" tabindex="-1">Integration guide ↗</a>
+            <a href="https://github.com/remcoros/spirits/blob/main/docs/usage.md">Usage guide ↗</a
+            ><a href="https://github.com/remcoros/spirits">GitHub ↗</a>
           </div>
-          <p id="downloads-status" class="hint">Loading local downloads…</p>
+          <p class="hint">
+            Installation, npm packages and release assets are covered in the usage guide.
+          </p>
         </div>
         <pre
           aria-label="TypeScript integration example"
-        ><code>import { createSpirit } from '@spirits/core';
-import { createSpiritQr } from '@spirits/qr';
+        ><code>import { createSpirit } from '@remcoros/spirits';
+import { createSpiritQr } from '@remcoros/spirits-qr';
 
 const { svg, recipe } = createSpirit(address);
 const qr = createSpiritQr(address);
@@ -168,9 +157,10 @@ const qr = createSpiritQr(address);
       <p>Same address.<br />Same SPirit.</p>
       <div>
         <span>An open, experimental project.</span><a href="./lab/">Explore the development lab ↗</a
-        ><a data-download="artwork" aria-disabled="true" tabindex="-1" download
-          >Download the artwork catalogue ↓</a
-        >
+        ><a
+          href="https://github.com/remcoros/spirits/blob/main/packages/core/assets/spirits-v0.json"
+          >Artwork catalogue ↗</a
+        ><a href="./third-party/THIRD-PARTY.md">Third-party notices ↗</a>
       </div>
     </footer>
     <script type="module" src="./site.ts"></script>

@@ -1,6 +1,6 @@
 # Tagged package and artifact releases
 
-The public generator follows `main`. npm packages and GitHub release assets come only from a reviewed `v` tag. Both packages use one version: `@remcoros/spirits` and `@remcoros/spirits-qr`, with QR depending on that exact core version. The initial planned version is `0.1.0-beta.1`; this document does not claim that either package or any release is already published.
+The public generator follows `main`. npm packages and GitHub release assets come only from a reviewed `v` tag. Both packages use one version: `@remcoros/spirits` and `@remcoros/spirits-qr`, with QR depending on that exact core version. The first beta, [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1), is published on npm and GitHub. It was bootstrapped through manually approved npm stages; OIDC publishing must still be validated by a subsequent genuine release.
 
 ## Checks and artifacts
 
@@ -31,7 +31,7 @@ Set each package's publishing access to require 2FA and disallow traditional tok
 
 ## First real release through staged publishing
 
-Staging can create a package that does not exist. It reserves the real version without exposing it publicly, and a maintainer approves it later with 2FA. Stage approval is interactive; an OIDC workflow cannot approve stages. See [npm staged publishing](https://docs.npmjs.com/cli/v11/commands/npm-stage/).
+Staging can create a package that does not exist. It reserves the real version without exposing it publicly, and a maintainer approves it later with 2FA. For a new package, npm automatically creates a public `0.0.0-stage` placeholder; the staged release's actual contents remain private until approval. Stage approval is interactive; an OIDC workflow cannot approve stages. See [npm staged publishing](https://docs.npmjs.com/staged-publishing/).
 
 1. Leave `NPM_PUBLISH_ENABLED` unset or `false`. Commit the release metadata and workflow, push `main`, create the real `v0.1.0-beta.1` tag at the reviewed commit, and push that tag. Its verification job prepares tested artifacts and the npm/GitHub publication jobs are skipped cleanly. The manual **prepare** operation also provides tested artifacts without attempting publication.
 2. Download the verified Actions artifact into a clean directory. Check `sha256sum -c SHA256SUMS`. Keep the same tarballs for staging, registry verification and any retry.
@@ -53,6 +53,8 @@ Staging can create a package that does not exist. It reserves the real version w
    ```
 
 5. Run **Tagged release** again with the same tag and operation **finalize-bootstrap**. It verifies that both registry tarballs exactly match the tested bytes, that both `next` tags point to this version, and that an isolated registry consumer passes. It then creates the matching GitHub release. This operation needs no npm token, trusted publisher, or npm writes. Human approval of the two packages is sequential, so both channel tags must be verified before announcing the release.
+
+Check `latest` after new-package staging too: it can still point at the automatic placeholder after approval under `next`. For the initial SPirits beta, both `latest` tags were moved to the approved `0.1.0-beta.1`, so default installs receive the actual beta. Do not delete that tag or unpublish the placeholder as a release cleanup step. Subsequent prereleases promote `next`; stable releases promote `latest`.
 
 Before the next genuine version is ready, configure both trusted publishers as above and set `NPM_PUBLISH_ENABLED=true`. Its tag push then publishes automatically. Do this within the configuration's two-day first-publish window. Merely rerunning the already-published bootstrap version skips npm publication and does **not** prove that OIDC publishing works or satisfy that first-publish requirement; recreate an expired configuration when the next real release is ready. Do not invent a placeholder or extra version just to validate authentication.
 

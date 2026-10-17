@@ -1,8 +1,8 @@
 # Hosting SPirits on GitHub Pages
 
-The public repository is `remcoros/spirits`. The prepared workflows deploy `main` to GitHub Pages; adding these files locally does not create a repository, enable Pages, register a domain or publish a site.
+The public repository is [`remcoros/spirits`](https://github.com/remcoros/spirits). Its workflows deploy validated `main` commits to GitHub Pages at [spirits.boo](https://spirits.boo/), with the workshop at [spirits.boo/lab/](https://spirits.boo/lab/). The setup steps below describe the repository, domain and HTTPS configuration.
 
-Before a custom domain is configured, the project URL is `https://remcoros.github.io/spirits/`, with the workshop at `/spirits/lab/`. The eventual canonical address is `https://spirits.boo/`, with `www.spirits.boo` redirecting to it. Register and verify that domain before connecting it. Vite keeps `base: './'`, so the same build supports the project subdirectory and a custom-domain root without a hard-coded domain or repository path.
+Before a custom domain is configured, the project URL is `https://remcoros.github.io/spirits/`, with the workshop at `/spirits/lab/`. The canonical address is `https://spirits.boo/`, with `www.spirits.boo` redirecting to it. Register and verify a domain before connecting it. Vite keeps `base: './'`, so the same build supports the project subdirectory and a custom-domain root without a hard-coded domain or repository path.
 
 ## Enable the project site
 

@@ -2,7 +2,7 @@
 
 SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public addresses. The core includes all artwork and produces self-contained SVG. The separate QR extension embeds the matching character in a standard payment QR.
 
-**The first planned release is `0.1.0-beta.1`.** Artwork and mappings in the experimental `spirits-v0` visual scheme may change. The live website follows `main` and can contain changes that are not yet in an npm release. For reproducible integration, use a specific package version or assets from a specific GitHub tag.
+**The first beta is [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1).** Artwork and mappings in the experimental `spirits-v0` visual scheme may change. The live website follows `main` and can contain changes that are not yet in an npm release. For reproducible integration, use a specific package version or assets from a specific GitHub tag.
 
 ## Find packages and release assets
 
@@ -11,7 +11,7 @@ SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public a
 - [GitHub Releases](https://github.com/remcoros/spirits/releases): downloadable package tarballs, standalone JavaScript modules, artwork catalogue, test vectors, licence notices and checksums.
 - [Source code](https://github.com/remcoros/spirits): implementation, documentation and development tools.
 
-Package pages and release assets become available after the first publication. Until then, use the [local checkout instructions](../README.md#run-locally). The website does not distribute the former PoC source ZIP or local package snapshots.
+Both package pages and the first beta's release assets are public. The website does not distribute the former PoC source ZIP or local package snapshots.
 
 ## Install from npm
 
@@ -21,13 +21,15 @@ Beta releases use the `next` channel:
 npm install @remcoros/spirits@next @remcoros/spirits-qr@next
 ```
 
-To pin the first beta exactly after it is published:
+To pin the first beta exactly:
 
 ```sh
 npm install @remcoros/spirits@0.1.0-beta.1 @remcoros/spirits-qr@0.1.0-beta.1
 ```
 
 The QR package depends on the same exact core version. Keep both versions together when upgrading. Install only the core if you do not need payment QRs.
+
+The initial beta also owns `latest`, so an install without a version or channel currently selects that beta. Use an exact version when you need reproducible output.
 
 ```ts
 import { createSpirit, deriveSpirit, renderSpirit, parseAddress } from '@remcoros/spirits';

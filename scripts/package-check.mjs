@@ -25,10 +25,12 @@ try {
     'npm',
     [
       'install',
-      '--offline',
       '--ignore-scripts',
       '--no-audit',
       '--no-fund',
+      '--registry=https://registry.npmjs.org/',
+      '--cache',
+      join(directory, '.npm'),
       resolve('dist/release', manifest.packages.core.file),
       resolve('dist/release', manifest.packages.qr.file),
     ],
@@ -83,7 +85,8 @@ console.log(JSON.stringify({address:qr.address,scheme:spirit.recipe.scheme,versi
   if (standaloneQr.createSpiritQr(address).address !== address)
     throw new Error('Standalone QR failed');
   const report = {
-    tarballInstallOffline: true,
+    tarballInstall: true,
+    isolatedNpmCache: true,
     externalNodeConsumer: true,
     externalTypeScriptConsumer: true,
     standaloneCore: true,
@@ -97,6 +100,9 @@ console.log(JSON.stringify({address:qr.address,scheme:spirit.recipe.scheme,versi
   await mkdir('artifacts', { recursive: true });
   await writeFile('artifacts/package-report.json', JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));
+} catch (error) {
+  console.error(error.stderr ? String(error.stderr).trim() : error.stack);
+  process.exitCode = 1;
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

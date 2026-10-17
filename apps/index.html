@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A familiar little ghost for your Bitcoin Silent Payment address. Create your SPirit and a standard payment QR locally in your browser."
+    />
+    <meta name="theme-color" content="#f8f6ed" />
+    <title>SPirits — give your silent address some spirit</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#generator">Skip to generator</a>
+    <header class="site-header wrap">
+      <a class="wordmark" href="./" aria-label="SPirits home"
+        ><span id="brand-ghost" aria-hidden="true"></span>SPirits<span class="release">v0</span></a
+      >
+      <nav aria-label="Main">
+        <a href="#about">The idea</a><a href="#developers">For developers</a
+        ><a href="./lab/">Open the lab <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+    <main>
+      <section class="studio wrap" id="generator" aria-labelledby="hero-title">
+        <div class="intro">
+          <p class="intro-line">
+            <span class="live-dot" aria-hidden="true"></span> Little ghosts for Bitcoin Silent
+            Payments
+          </p>
+          <h1 id="hero-title">Give your address<br />some spirit.</h1>
+          <div class="lead-with-example">
+            <p class="lead">
+              A familiar face for a very long address. Make a SPirit and a payment QR.
+            </p>
+            <span class="mobile-example" id="mobile-ghost" aria-hidden="true"></span>
+          </div>
+          <form id="generator-form" novalidate>
+            <label for="address">Your Silent Payment address</label
+            ><textarea
+              id="address"
+              name="address"
+              rows="3"
+              placeholder="sp1q… or tsp1q…"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              aria-describedby="address-hint address-error"
+            ></textarea>
+            <p id="address-hint" class="hint">
+              Paste the complete public address beginning sp1 or tsp1. Everything stays in this
+              browser.
+            </p>
+            <p id="address-error" class="error" role="alert"></p>
+            <div class="form-actions">
+              <button class="primary" type="submit" id="create">
+                Meet your SPirit <span aria-hidden="true">↗</span></button
+              ><button type="button" class="text-button" id="example">Try an example</button>
+            </div>
+            <p id="form-status" class="hint" role="status" aria-live="polite"></p>
+            <a class="result-link" id="result-link" href="#output-panel" hidden
+              >View your SPirit and downloads</a
+            >
+          </form>
+          <p class="privacy-note">No account. No uploads. No address lookup.</p>
+        </div>
+        <div class="output-panel" aria-busy="false" id="output-panel">
+          <div class="preview-top">
+            <div class="mode-switch" role="group" aria-label="Preview">
+              <button id="mode-spirit" type="button" aria-pressed="true">SPirit</button
+              ><button id="mode-qr" type="button" aria-pressed="false" disabled>Payment QR</button>
+            </div>
+            <span class="network-tag" id="network-tag">Say hello</span>
+          </div>
+          <div
+            class="ghost-stage"
+            id="preview"
+            aria-label="Example SPirit; not a generated result"
+          ></div>
+          <div class="preview-caption">
+            <strong id="preview-title">Yours is waiting.</strong>
+            <p id="preview-detail">Paste an address to discover its character.</p>
+          </div>
+          <div class="download-actions">
+            <button type="button" class="secondary" id="download-svg" disabled>
+              Download SVG <span aria-hidden="true">↓</span></button
+            ><button type="button" class="secondary" id="download-png" disabled>
+              Download PNG <span aria-hidden="true">↓</span>
+            </button>
+          </div>
+          <p class="export-guide">PNG for images and sharing. SVG for scalable artwork.</p>
+          <p class="output-status" id="output-status" role="status" aria-live="polite">
+            An example ghost is shown above.
+          </p>
+        </div>
+      </section>
+      <section class="meet-section" id="about">
+        <div class="wrap">
+          <div class="section-intro">
+            <h2>Quiet payments.<br />Quite a personality.</h2>
+            <p>
+              Your address’s scan key shapes the character: its face, colour, outline, and signature
+              accessory. Wallet labels that share that scan key add a small badge and trim
+              variation, while keeping the same ghost.
+            </p>
+          </div>
+          <div class="spirit-parade" id="parade" aria-label="A selection of example Spirits"></div>
+          <div class="about-details">
+            <p>
+              <strong>Made from your address.</strong><br />The same address and artwork version
+              reproduce the same SPirit, wherever you generate it.
+            </p>
+            <p>
+              <strong>A complete payment QR.</strong><br />The QR carries the complete address.
+              Check it with your Silent Payments wallet before sharing or printing it.
+            </p>
+            <p>
+              <strong>A recognition aid.</strong><br />Characters can look alike. Always check the
+              address in your wallet. Shared appearances do not prove ownership.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section class="developers wrap" id="developers">
+        <div>
+          <h2>A little ghost.<br />A small library.</h2>
+          <p>
+            Bring SPirits into your own app. The TypeScript core includes the artwork and renders
+            self-contained SVG. Add the QR extension when you need payment codes.
+          </p>
+          <p class="hint">
+            Experimental v0. Artwork and mappings may change before v1. Code: MIT. Original artwork:
+            CC0.
+          </p>
+          <div class="developer-links">
+            <a
+              data-download="core"
+              data-label="Core package"
+              aria-disabled="true"
+              tabindex="-1"
+              download
+              >Core package ↓</a
+            ><a
+              data-download="qr"
+              data-label="QR extension"
+              aria-disabled="true"
+              tabindex="-1"
+              download
+              >QR extension ↓</a
+            ><a data-download="source" aria-disabled="true" tabindex="-1" download>POC source ↓</a
+            ><a data-download="guide" aria-disabled="true" tabindex="-1">Integration guide ↗</a>
+          </div>
+          <p id="downloads-status" class="hint">Loading local downloads…</p>
+        </div>
+        <pre
+          aria-label="TypeScript integration example"
+        ><code>import { createSpirit } from '@spirits/core';
+import { createSpiritQr } from '@spirits/qr';
+
+const { svg, recipe } = createSpirit(address);
+const qr = createSpiritQr(address);
+
+// Self-contained SVG. No asset server.
+// Same key, same familiar character.</code></pre>
+      </section>
+    </main>
+    <footer class="wrap site-footer">
+      <p>Same address.<br />Same SPirit.</p>
+      <div>
+        <span>An open, experimental project.</span><a href="./lab/">Explore the development lab ↗</a
+        ><a data-download="artwork" aria-disabled="true" tabindex="-1" download
+          >Download the artwork catalogue ↓</a
+        >
+      </div>
+    </footer>
+    <script type="module" src="./site.ts"></script>
+  </body>
+</html>

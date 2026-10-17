@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-17",
+  "projectState": "Empty directory; no existing design system or production files",
+  "audience": "Bitcoin Silent Payments users and app developers",
+  "useCase": "Create a deterministic Spirit and standard payment QR",
+  "tone": "playful, expressive ghosts",
+  "framework": "HTML and TypeScript",
+  "motion": "interaction only; reduced-motion supported"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "https://raw.githubusercontent.com/bitcoin/bips/master/bip-0352/send_and_receive_test_vectors.json",
+  "sha256": "f5f9ed4afd76a1b76f3c70b1cbe67532f89abbe559f8e02d7fc3d8ecb93af4a1",
+  "license": "BSD-2-Clause",
+  "description": "Public addresses extracted from the BIP352 official send/receive vectors."
+}

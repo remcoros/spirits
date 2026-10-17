@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SPirits development lab</title>
+  </head>
+  <body>
+    <a href="#lab-controls" class="skip-link">Skip to controls</a>
+    <header class="site-header wrap">
+      <a class="wordmark" href="../">SPirits <span class="release">lab</span></a>
+      <nav aria-label="Lab navigation">
+        <a href="../">Public generator ↗</a><a href="#catalogue">Asset catalogue</a>
+      </nav>
+    </header>
+    <main class="wrap">
+      <div class="lab-header">
+        <h1>The ghost workshop.</h1>
+        <p>
+          Inspect real BIP352 address families, explore the artwork, and check the final QR. This
+          page uses the same core and QR libraries as the public generator.
+        </p>
+      </div>
+      <p class="fixture-note">
+        <strong>Development fixtures only.</strong> Generated addresses use reproducible, public
+        test keys. Never receive funds to them. Use an existing public address in the inspector to
+        preview your own Spirit.
+      </p>
+      <section class="lab-workspace" aria-label="Address workshop">
+        <div class="lab-controls" id="lab-controls">
+          <fieldset>
+            <legend>Create a public fixture</legend>
+            <label for="seed">Fixture seed (public test string)</label
+            ><input id="seed" value="hello-spirit" spellcheck="false" />
+            <div class="field-row">
+              <div>
+                <label for="label">BIP352 label</label
+                ><input
+                  id="label"
+                  type="number"
+                  value="1"
+                  min="1"
+                  max="4294967295"
+                  step="1"
+                  aria-describedby="lab-error"
+                />
+              </div>
+              <div>
+                <label for="network">Network</label
+                ><select id="network">
+                  <option value="testnet">Test network · tsp</option>
+                  <option value="mainnet">Mainnet · public test keys</option>
+                </select>
+              </div>
+            </div>
+            <div class="lab-buttons">
+              <button id="generate" class="primary" type="button">Generate fixture</button
+              ><button id="random" class="secondary" type="button">New character</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Inspect an existing address</legend>
+            <label for="inspect-address">Inspect a public SP address</label
+            ><textarea
+              id="inspect-address"
+              rows="4"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              aria-describedby="lab-error"
+            ></textarea
+            ><button type="button" class="text-button" id="inspect">Inspect address ↗</button>
+            <p class="hint">
+              Inspection changes the preview; the label family below always belongs to your fixture
+              seed.
+            </p>
+          </fieldset>
+          <p class="error" role="alert" id="lab-error"></p>
+          <div class="lab-buttons">
+            <button class="secondary" id="save-spirit" type="button">Spirit SVG ↓</button
+            ><button class="secondary" id="save-qr" type="button">QR SVG ↓</button
+            ><button class="secondary" id="check-qr" type="button">Decode final QR</button>
+          </div>
+          <p role="status" id="lab-status" class="hint" aria-live="polite"></p>
+        </div>
+        <div>
+          <div class="lab-previews">
+            <div id="lab-spirit" aria-label="No current SPirit"></div>
+            <div id="lab-qr" class="qr-art" aria-label="No current payment QR"></div>
+          </div>
+          <div id="lab-meta" class="lab-meta"></div>
+          <details>
+            <summary>Address keys and trait recipe</summary>
+            <pre id="recipe"></pre>
+          </details>
+        </div>
+      </section>
+      <section class="lab-section" aria-labelledby="family-title">
+        <div class="section-toolbar">
+          <h2 id="family-title">One character. Eight labels.</h2>
+          <label
+            >Preview size
+            <select id="preview-size">
+              <option value="110">110 px</option>
+              <option value="64">64 px</option>
+              <option value="32">32 px</option>
+            </select></label
+          >
+        </div>
+        <p class="hint" id="family-note">Changing the label preserves all nine character traits.</p>
+        <div id="family" class="contact-grid review-art"></div>
+      </section>
+      <section class="lab-section" aria-labelledby="grid-title">
+        <div class="section-toolbar">
+          <h2 id="grid-title">Different scan keys.</h2>
+          <button id="refresh-grid" class="secondary" type="button">Another 48 ghosts</button>
+        </div>
+        <div class="review-options" aria-label="Character review options">
+          <label
+            ><input id="fixed-label" type="checkbox" checked /> Use the same badge and trim</label
+          >
+          <label><input id="grayscale" type="checkbox" /> Show artwork in grayscale</label>
+        </div>
+        <p class="hint">
+          Pin two characters to compare them across batches. Comparison stays in this tab and is
+          cleared when you reload.
+        </p>
+        <div id="characters" class="contact-grid review-art"></div>
+        <section class="comparison-section" aria-labelledby="comparison-title">
+          <h3 id="comparison-title">Pinned comparison</h3>
+          <p id="comparison-status" class="hint" role="status">
+            Pin a character from the grid to keep it here.
+          </p>
+          <div id="comparison" class="comparison-grid review-art"></div>
+        </section>
+      </section>
+      <section class="lab-section" id="catalogue">
+        <div class="section-toolbar">
+          <h2>Every building block.</h2>
+          <select id="asset-group" aria-label="Asset group"></select>
+        </div>
+        <p class="hint">
+          Core traits belong to the scan key. Badges and accents belong to the complete address.
+        </p>
+        <div id="assets" class="contact-grid"></div>
+      </section>
+      <section class="lab-section">
+        <h2>Variety budget.</h2>
+        <p class="hint">
+          The raw combination count is a trait-selection space, not a guarantee of visually unique
+          characters. Similar-looking Spirits and exact collisions remain possible.
+        </p>
+        <pre id="budget"></pre>
+        <button id="audit" class="secondary" type="button">Sample 512 characters</button>
+        <p id="audit-result" class="lab-report" role="status"></p>
+      </section>
+    </main>
+    <footer class="wrap site-footer">
+      <p>Made to be<br />taken apart.</p>
+      <div>
+        <a href="../">Back to the generator ↗</a
+        ><a data-download="artwork" aria-disabled="true" tabindex="-1" download
+          >Portable artwork catalogue ↓</a
+        >
+      </div>
+    </footer>
+    <script type="module" src="./lab.ts"></script>
+  </body>
+</html>

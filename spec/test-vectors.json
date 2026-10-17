@@ -1,0 +1,362 @@
+[
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 1,
+    "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqcy8thq7jc242ghew5zlpteefefrgakp985nepuy07zaqndtsfqrcng5z6a",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqcy8thq7jc242ghew5zlpteefefrgakp985nepuy07zaqndtsfqrcng5z6a",
+      "network": "mainnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "ced5cdd22acacc9d33cef50f5f76073fa5bcc47334361bcf170badeac1107aad",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-15",
+        "accent": "accent-15",
+        "pattern": 8,
+        "glyph": 4275
+      }
+    },
+    "svgSha256": "bd20e14958f815032879edceaf9d42dcdb9158675260ef934baf8d521955f66f"
+  },
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 1,
+    "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqcy8thq7jc242ghew5zlpteefefrgakp985nepuy07zaqndtsfqrc885hsx",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqcy8thq7jc242ghew5zlpteefefrgakp985nepuy07zaqndtsfqrc885hsx",
+      "network": "testnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "ced5cdd22acacc9d33cef50f5f76073fa5bcc47334361bcf170badeac1107aad",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-15",
+        "accent": "accent-15",
+        "pattern": 8,
+        "glyph": 4275
+      }
+    },
+    "svgSha256": "bd20e14958f815032879edceaf9d42dcdb9158675260ef934baf8d521955f66f"
+  },
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 2,
+    "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqc6kfwrzmv52q6xgwqsynk60hfgjfxqyz4f5udrwgnl63y5se4mjvudkhn6",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqc6kfwrzmv52q6xgwqsynk60hfgjfxqyz4f5udrwgnl63y5se4mjvudkhn6",
+      "network": "mainnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "5ea931d86b8e3849aaaa23aa1d8948b22bea9707fc0bf8fcb0699402a06598fe",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-09",
+        "accent": "accent-08",
+        "pattern": 14,
+        "glyph": 11599
+      }
+    },
+    "svgSha256": "c595c7424c40a7c5cfa4d136d34d30bdd630f0de0281fbd8fea2442909f77545"
+  },
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 2,
+    "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqc6kfwrzmv52q6xgwqsynk60hfgjfxqyz4f5udrwgnl63y5se4mjvgzkzep",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqc6kfwrzmv52q6xgwqsynk60hfgjfxqyz4f5udrwgnl63y5se4mjvgzkzep",
+      "network": "testnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "5ea931d86b8e3849aaaa23aa1d8948b22bea9707fc0bf8fcb0699402a06598fe",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-09",
+        "accent": "accent-08",
+        "pattern": 14,
+        "glyph": 11599
+      }
+    },
+    "svgSha256": "c595c7424c40a7c5cfa4d136d34d30bdd630f0de0281fbd8fea2442909f77545"
+  },
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 42,
+    "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqsgmzjsxefggujr9w3srchsly792hz47a46rw05m85c87gtgse39uxyxnvk",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqsgmzjsxefggujr9w3srchsly792hz47a46rw05m85c87gtgse39uxyxnvk",
+      "network": "mainnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "158c8f1d921b844b44ea579fbd04452f560fc8308d223704be6fb0779416821e",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-00",
+        "accent": "accent-00",
+        "pattern": 11,
+        "glyph": 18201
+      }
+    },
+    "svgSha256": "7a8aeeb0aa39e1af9d44afc84d4bc803a6e98e54f173c4fb33eb743ee1a11804"
+  },
+  {
+    "fixtureSeed": "hello-spirit",
+    "label": 42,
+    "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqsgmzjsxefggujr9w3srchsly792hz47a46rw05m85c87gtgse39ujtxxxd",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqtwe26v3lyvwcqjaay03jla5e50vr04m73e5gs87hdxu5x6n7weawqsgmzjsxefggujr9w3srchsly792hz47a46rw05m85c87gtgse39ujtxxxd",
+      "network": "testnet",
+      "identity": "e2a4fd537fc556e7cda85ce604a3999a4f95b12bd96c7947f762a097b60fbfa4",
+      "variationId": "158c8f1d921b844b44ea579fbd04452f560fc8308d223704be6fb0779416821e",
+      "character": {
+        "body": "body-01",
+        "hem": "hem-04",
+        "eyes": "eyes-46",
+        "mouth": "mouth-22",
+        "brows": "brows-03",
+        "palette": "palette-03",
+        "marking": "marking-16",
+        "head": "head-21",
+        "item": "item-21"
+      },
+      "variation": {
+        "badge": "badge-00",
+        "accent": "accent-00",
+        "pattern": 11,
+        "glyph": 18201
+      }
+    },
+    "svgSha256": "7a8aeeb0aa39e1af9d44afc84d4bc803a6e98e54f173c4fb33eb743ee1a11804"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 1,
+    "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqm94qxmc4y0yzyg8ghcvhypn3k8q0phewjzvxakx8nqhh5r3car4gada36u",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqm94qxmc4y0yzyg8ghcvhypn3k8q0phewjzvxakx8nqhh5r3car4gada36u",
+      "network": "mainnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "8b76afd083d5767a4241e3f87d2ab13ffabbf0ade0818f5de565569939b078ad",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-06",
+        "accent": "accent-02",
+        "pattern": 1,
+        "glyph": 41841
+      }
+    },
+    "svgSha256": "1429f0eeafb1867df493aa1efbc0525e9321e5c0529c345641785c3144c6a61d"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 1,
+    "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqm94qxmc4y0yzyg8ghcvhypn3k8q0phewjzvxakx8nqhh5r3car4gfzays8",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqm94qxmc4y0yzyg8ghcvhypn3k8q0phewjzvxakx8nqhh5r3car4gfzays8",
+      "network": "testnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "8b76afd083d5767a4241e3f87d2ab13ffabbf0ade0818f5de565569939b078ad",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-06",
+        "accent": "accent-02",
+        "pattern": 1,
+        "glyph": 41841
+      }
+    },
+    "svgSha256": "1429f0eeafb1867df493aa1efbc0525e9321e5c0529c345641785c3144c6a61d"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 2,
+    "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uq72ku5j3wgqaazf4ztp9q33ztc7c2tdwlzxypw36rqtl4faj2cneymgcd89",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uq72ku5j3wgqaazf4ztp9q33ztc7c2tdwlzxypw36rqtl4faj2cneymgcd89",
+      "network": "mainnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "7b81da5baa8b87b21adea322215a73c90d7866c53af7c69b37a527cc3a1d9271",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-01",
+        "accent": "accent-04",
+        "pattern": 2,
+        "glyph": 18412
+      }
+    },
+    "svgSha256": "6b85406b8a276be6a2f65c776a4231b0657cad9646ae4afd15c95a0a3169f5e6"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 2,
+    "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uq72ku5j3wgqaazf4ztp9q33ztc7c2tdwlzxypw36rqtl4faj2cney08ccd7",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uq72ku5j3wgqaazf4ztp9q33ztc7c2tdwlzxypw36rqtl4faj2cney08ccd7",
+      "network": "testnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "7b81da5baa8b87b21adea322215a73c90d7866c53af7c69b37a527cc3a1d9271",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-01",
+        "accent": "accent-04",
+        "pattern": 2,
+        "glyph": 18412
+      }
+    },
+    "svgSha256": "6b85406b8a276be6a2f65c776a4231b0657cad9646ae4afd15c95a0a3169f5e6"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 42,
+    "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqhykr4qvedvpvqdyrcecsm99vjap734ltkpzv5rvz4fh2vcmel05saq26xn",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "sp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqhykr4qvedvpvqdyrcecsm99vjap734ltkpzv5rvz4fh2vcmel05saq26xn",
+      "network": "mainnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "9cd4acc0b78f152952a9fc90e7cd4799478cd5b260c3afd66d0430a6ea6a867c",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-13",
+        "accent": "accent-15",
+        "pattern": 15,
+        "glyph": 18762
+      }
+    },
+    "svgSha256": "3b145ccb294b463f8b683f38bcc7031dc12993a2c7f0b9dd4385c6156e8e49cb"
+  },
+  {
+    "fixtureSeed": "vector-2",
+    "label": 42,
+    "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqhykr4qvedvpvqdyrcecsm99vjap734ltkpzv5rvz4fh2vcmel05sf020vg",
+    "recipe": {
+      "scheme": "spirits-v0",
+      "address": "tsp1qqwup4e24306sv4kaa7n0aa9ffkxz7uqef2phjxgsdaekqmt2j6r8uqhykr4qvedvpvqdyrcecsm99vjap734ltkpzv5rvz4fh2vcmel05sf020vg",
+      "network": "testnet",
+      "identity": "5d6dcd2090bc13d98d26f65bcae2dd7009e8838e4b8b2775b0739db5b96101ce",
+      "variationId": "9cd4acc0b78f152952a9fc90e7cd4799478cd5b260c3afd66d0430a6ea6a867c",
+      "character": {
+        "body": "body-13",
+        "hem": "hem-05",
+        "eyes": "eyes-62",
+        "mouth": "mouth-09",
+        "brows": "brows-08",
+        "palette": "palette-01",
+        "marking": "marking-15",
+        "head": "head-08",
+        "item": "item-34"
+      },
+      "variation": {
+        "badge": "badge-13",
+        "accent": "accent-15",
+        "pattern": 15,
+        "glyph": 18762
+      }
+    },
+    "svgSha256": "3b145ccb294b463f8b683f38bcc7031dc12993a2c7f0b9dd4385c6156e8e49cb"
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "name": "spirits-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build:lib": "tsc -b packages/core packages/qr && node scripts/bundle.mjs",
+    "build": "npm run build:lib && npm run downloads && vite build",
+    "downloads": "node scripts/downloads.mjs",
+    "check": "npm run build:lib && tsc --noEmit",
+    "test": "npm run build:lib && tsx --test tests/*.test.ts",
+    "test:browser": "tsx scripts/browser-check.ts",
+    "test:packages": "node scripts/package-check.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "audit:variety": "tsx scripts/variety.ts",
+    "audit:visual": "tsx scripts/visual-audit.ts",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "@fontsource/manrope": "5.3.0",
+    "@fontsource/space-grotesk": "5.3.0",
+    "@types/node": "26.6.5",
+    "esbuild": "0.28.2",
+    "jsqr": "1.4.0",
+    "playwright": "1.64.1",
+    "prettier": "3.9.10",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.4"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

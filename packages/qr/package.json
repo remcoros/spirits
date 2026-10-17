@@ -1,0 +1,28 @@
+{
+  "name": "@spirits/qr",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Standard Silent Payment QR codes with a deterministic SPirit in the centre.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD-PARTY.md"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@spirits/core": "0.1.0"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

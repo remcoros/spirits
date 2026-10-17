@@ -1,0 +1,9 @@
+node_modules
+dist
+public/downloads
+artifacts
+packages/*/dist
+packages/qr/src/vendor
+packages/core/src/artwork.ts
+packages/core/assets/spirits-v0.json
+package-lock.json

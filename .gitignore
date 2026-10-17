@@ -1,0 +1,7 @@
+node_modules/
+dist/
+packages/*/dist/
+*.tsbuildinfo
+public/downloads/
+artifacts/
+.DS_Store

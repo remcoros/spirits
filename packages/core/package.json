@@ -1,0 +1,35 @@
+{
+  "name": "@spirits/core",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Experimental, deterministic ghost avatars for Bitcoin Silent Payment addresses.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
+    }
+  },
+  "files": [
+    "dist",
+    "assets",
+    "README.md",
+    "LICENSE",
+    "ASSET-LICENSE"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@scure/base": "2.4.0",
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "2.4.0"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

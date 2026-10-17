@@ -150,6 +150,19 @@ export function validateGitHubAssets(assets, files) {
     throw new Error('GitHub release contains an unreviewed asset.');
 }
 
+/** The tag endpoint only returns published releases; drafts must be found in the list. */
+export async function findGitHubRelease(tag, api) {
+  const published = await api(`releases/tags/${encodeURIComponent(tag)}`, true);
+  if (published) return published;
+  for (let page = 1; ; page++) {
+    const releases = await api(`releases?per_page=100&page=${page}`);
+    const matches = releases.filter((release) => release.tag_name === tag);
+    if (matches.length > 1) throw new Error(`Multiple GitHub releases refer to ${tag}.`);
+    if (matches.length) return matches[0];
+    if (releases.length < 100) return null;
+  }
+}
+
 /** Retry uncertain publish outcomes, but only skip a version after verifying identical bytes. */
 export async function ensurePublished(pkg, { lookup, publish, wait = sleep }) {
   let lastError;
@@ -438,7 +451,7 @@ async function githubRelease(root, tag) {
     ).join('\n') + '\n';
   if ((await readFile(join(directory, 'SHA256SUMS'), 'utf8')) !== expected)
     throw new Error('Release checksum file is missing or stale.');
-  let current = await api(`releases/tags/${encodeURIComponent(tag)}`, true);
+  let current = await findGitHubRelease(tag, api);
   if (!current) {
     const notes = join(await mkdtemp(join(tmpdir(), 'spirits-notes-')), 'notes.md');
     try {
@@ -466,9 +479,11 @@ async function githubRelease(root, tag) {
     } finally {
       await rm(resolve(notes, '..'), { recursive: true, force: true });
     }
-    current = await api(`releases/tags/${encodeURIComponent(tag)}`);
+    current = await findGitHubRelease(tag, api);
   }
-  if (current.tag_name !== tag) throw new Error('GitHub release refers to an unexpected tag.');
+  if (!current || current.tag_name !== tag)
+    throw new Error('GitHub release refers to an unexpected tag or could not be found.');
+  const releasePath = `releases/${current.id}`;
   validateGitHubAssets(current.assets, files);
   for (const file of files) {
     const path = join(directory, file),
@@ -485,7 +500,7 @@ async function githubRelease(root, tag) {
           `Published release is missing ${file}; investigate before publishing another version.`,
         );
       run('gh', ['release', 'upload', tag, path, '--repo', REPOSITORY], { stdio: 'inherit' });
-      current = await api(`releases/tags/${encodeURIComponent(tag)}`);
+      current = await api(releasePath);
       if (current.assets.find((asset) => asset.name === basename(file))?.digest !== digest)
         throw new Error(`Could not verify uploaded GitHub asset ${file}.`);
     }
@@ -510,8 +525,8 @@ async function githubRelease(root, tag) {
       { stdio: 'inherit' },
     );
   }
-  const final = await api(`releases/tags/${encodeURIComponent(tag)}`);
-  if (final.draft || final.prerelease !== release.prerelease)
+  const final = await api(releasePath);
+  if (final.tag_name !== tag || final.draft || final.prerelease !== release.prerelease)
     throw new Error('GitHub release publication state could not be verified.');
   console.log(`Verified GitHub release ${tag} and ${files.length} identical assets.`);
 }

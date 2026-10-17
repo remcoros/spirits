@@ -12,6 +12,7 @@ import {
   validateVersions,
   validateCheckout,
   validateGitHubAssets,
+  findGitHubRelease,
   tarballIntegrity,
   ensurePublished,
   publishPair,
@@ -56,6 +57,52 @@ test('GitHub release asset names are validated without treating map indexes as p
   assert.throws(
     () => validateGitHubAssets([{ name: 'surprise.tgz' }], ['manifest.json']),
     /unreviewed/,
+  );
+});
+
+test('release discovery resumes a draft after the published-tag endpoint returns 404', async () => {
+  const draft = { id: 42, tag_name: release.tag, draft: true };
+  const calls: string[] = [];
+  const api = async (path: string, missing?: boolean) => {
+    calls.push(path);
+    if (path.startsWith('releases/tags/')) {
+      assert.equal(missing, true);
+      return null;
+    }
+    if (path.endsWith('page=1'))
+      return Array.from({ length: 100 }, (_, i) => ({
+        id: i + 100,
+        tag_name: `v1.0.${i}`,
+        draft: false,
+      }));
+    assert.equal(path, 'releases?per_page=100&page=2');
+    return [draft];
+  };
+  assert.deepEqual(await findGitHubRelease(release.tag, api), draft);
+  assert.deepEqual(calls, [
+    `releases/tags/${release.tag}`,
+    'releases?per_page=100&page=1',
+    'releases?per_page=100&page=2',
+  ]);
+  assert.equal(
+    await findGitHubRelease(release.tag, async (path) =>
+      path.startsWith('releases/tags/') ? null : [],
+    ),
+    null,
+  );
+  assert.deepEqual(await findGitHubRelease(release.tag, async () => draft), draft);
+  await assert.rejects(
+    findGitHubRelease(release.tag, async (path) =>
+      path.startsWith('releases/tags/') ? null : [draft, draft],
+    ),
+    /Multiple GitHub releases/,
+  );
+  await assert.rejects(
+    findGitHubRelease(release.tag, async (path) => {
+      assert.equal(path, `releases/tags/${release.tag}`);
+      throw new Error('HTTP 403');
+    }),
+    /HTTP 403/,
   );
 });
 

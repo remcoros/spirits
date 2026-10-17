@@ -40,6 +40,10 @@ export function requireMatchingVersion(
   published: PublishedPackage | null,
 ): void;
 export function validateGitHubAssets(assets: { name: string }[], files: string[]): void;
+export function findGitHubRelease<T extends { tag_name: string }>(
+  tag: string,
+  api: (path: string, missing?: boolean) => Promise<T | T[] | null>,
+): Promise<T | null>;
 export function ensurePublished(
   pkg: ReleasePackage,
   operations: Pick<PublishOperations, 'lookup' | 'publish' | 'wait'>,

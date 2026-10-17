@@ -2,16 +2,18 @@
 
 SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public addresses. The core includes all artwork and produces self-contained SVG. The separate QR extension embeds the matching character in a standard payment QR.
 
-**The first beta is [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1).** Artwork and mappings in the experimental `spirits-v0` visual scheme may change. The live website follows `main` and can contain changes that are not yet in an npm release. For reproducible integration, use a specific package version or assets from a specific GitHub tag.
+**The first beta is [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1).** Artwork and mappings in the experimental `spirits-v0` visual scheme may change. The live website follows `main` and can contain changes that are not yet in an npm release. For reproducible integration, install a specific npm package version and use the matching GitHub tag for reference documentation and test vectors.
 
-## Find packages and release assets
+## Find packages and release notes
 
 - [Core package: `@remcoros/spirits`](https://www.npmjs.com/package/@remcoros/spirits).
 - [QR extension: `@remcoros/spirits-qr`](https://www.npmjs.com/package/@remcoros/spirits-qr).
-- [GitHub Releases](https://github.com/remcoros/spirits/releases): downloadable package tarballs, standalone JavaScript modules, artwork catalogue, test vectors, licence notices and checksums.
+- [GitHub Releases](https://github.com/remcoros/spirits/releases): change notes, npm installation links and versioned documentation. GitHub also provides its automatic source-code ZIP and tarball for each tag.
 - [Source code](https://github.com/remcoros/spirits): implementation, documentation and development tools.
 
-Both package pages and the first beta's release assets are public. The website does not distribute the former PoC source ZIP or local package snapshots.
+Public packages download from npm. Their tarballs contain the standalone modules, and the core tarball includes the portable artwork catalogue. GitHub Releases have no custom file attachments. Generated avatar and QR image downloads remain available in the website.
+
+This guide corrects the distribution instructions in the immutable initial beta tag. Use this [current guide](https://github.com/remcoros/spirits/blob/main/docs/usage.md) for package access, and the [tagged reference](https://github.com/remcoros/spirits/tree/v0.1.0-beta.1) for that version's implementation, algorithm and test vectors.
 
 ## Install from npm
 
@@ -62,26 +64,46 @@ const pngBlob = await svgToPng(svg);
 
 This adapter requires browser APIs. PNG bytes can differ between rasterisers even when the character is the same.
 
-## Use downloadable assets
+## Extract standalone modules and artwork from npm
 
-Choose a tag on [GitHub Releases](https://github.com/remcoros/spirits/releases), including the beta releases. The release assets and npm packages come from the same tested build.
+Use `npm pack` when you want a standalone ES module or the portable catalogue without installing the packages into an application. These commands download the exact first-beta tarballs and extract each complete package into a separate, newly created temporary directory:
 
-- **Package tarballs (`.tgz`)** can be installed with `npm install ./downloaded-package.tgz`. Install the core and QR tarballs from the same release together when using both.
-- **`spirits-core.mjs` and `spirits-qr.mjs`** are standalone ES modules with dependencies and artwork bundled. Download them into your app and import them by local path. Each is self-contained; importing both includes two copies of the core code. The npm packages allow a bundler to share dependencies and remove unused functions.
-- **`spirits-v0.json`**, the algorithm notes and test vectors support inspecting the catalogue and building independent implementations. Match them to the release whose appearance you need to reproduce.
-- **Licence notices and checksums** accompany the downloadable assets. Keep the required notices when redistributing modules or fonts.
+```sh
+spirits_extract_dir="$(mktemp -d)"
+mkdir "$spirits_extract_dir/core" "$spirits_extract_dir/qr"
 
-For example, after downloading the standalone modules into your application:
+npm pack @remcoros/spirits@0.1.0-beta.1 --ignore-scripts --pack-destination "$spirits_extract_dir/core"
+npm pack @remcoros/spirits-qr@0.1.0-beta.1 --ignore-scripts --pack-destination "$spirits_extract_dir/qr"
+
+tar -xzf "$spirits_extract_dir/core/remcoros-spirits-0.1.0-beta.1.tgz" -C "$spirits_extract_dir/core"
+tar -xzf "$spirits_extract_dir/qr/remcoros-spirits-qr-0.1.0-beta.1.tgz" -C "$spirits_extract_dir/qr"
+
+printf 'Extracted packages: %s\n' "$spirits_extract_dir"
+```
+
+The paths below are relative to `$spirits_extract_dir`:
+
+| File                                  | Purpose                                                              |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `core/package/dist/spirits-core.mjs`  | Standalone platform-neutral core, including dependencies and artwork |
+| `qr/package/dist/spirits-qr.mjs`      | Standalone QR extension, including core and the QR encoder           |
+| `core/package/assets/spirits-v0.json` | Portable, ordered artwork catalogue                                  |
+
+Keep each extracted `package/` tree together when vendoring it. The core includes `README.md`, `LICENSE` and `ASSET-LICENSE`; QR includes `README.md`, `LICENSE` and `THIRD-PARTY.md`. Preserve the modules' bundled legal comments and the required licence notices when redistributing them. Original code is MIT and original artwork is CC0; dependencies retain their own licences.
+
+For example, if you place the extracted core tree at `./vendor/spirits-core/` and the QR tree at `./vendor/spirits-qr/`, import their standalone files by local path:
 
 ```js
-import { createSpirit } from './spirits-core.mjs';
-import { createSpiritQr } from './spirits-qr.mjs';
+import { createSpirit } from './vendor/spirits-core/dist/spirits-core.mjs';
+import { createSpiritQr } from './vendor/spirits-qr/dist/spirits-qr.mjs';
 
 const spirit = createSpirit(address);
 const qr = createSpiritQr(address);
 ```
 
-The standalone core module exports the platform-neutral API. Use the npm browser entry point for the optional PNG adapter.
+Each module is self-contained; importing both includes two copies of the core code. Normal npm package imports allow a bundler to share dependencies and remove unused functions. The package export maps expose the documented package APIs, not `dist/` or `assets/` subpaths: the extracted files above are local files, not package subpath imports. Use `@remcoros/spirits/browser` for the optional PNG adapter.
+
+For independent implementations, match the extracted catalogue to the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0-beta.1/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0-beta.1/spec/test-vectors.json). Those reference files remain in the tagged source tree. The downloaded `.tgz` files can also be installed directly with `npm install /path/to/package.tgz`; install matching core and QR tarballs together when using both.
 
 ## Address and appearance contracts
 

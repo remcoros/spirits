@@ -72,8 +72,8 @@ npm run build:lib          # required before the first dev run
 npm run dev                # public page on 127.0.0.1:5187, lab at /lab/
 npm run check              # library builds + strict TypeScript checks
 npm test                   # public contracts and final QR raster decoding
-npm run build              # libraries, release assets and static site
-npm run build:assets       # build libraries and stage release assets
+npm run build              # libraries, package verification artifacts and static site
+npm run build:assets       # build libraries and stage package verification artifacts
 npm run test:packages      # isolated tarball and standalone-module consumers
 npm run test:browser       # built site; owns temporary preview port 5287
 npm run audit:variety -- 10000
@@ -84,7 +84,7 @@ npm run format:check       # formatting check without mutation
 
 Rebuild libraries after editing their source; the dev app consumes built workspace exports. Restart the owned Vite server if the dependency optimizer is stale. Development uses strict port 5187, built preview 4187, browser checks 5287. Inspect ownership before stopping processes. `SPIRITS_BROWSER` overrides the browser test's default `/usr/bin/google-chrome`.
 
-`npm run build` writes local tarballs, standalone ESM, catalogue/reference data, notices and a manifest into ignored `dist/release/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The website links to GitHub and `docs/usage.md`; package downloads come from npm and tagged GitHub Releases. Do not restore the former PoC source ZIP or website package-download tree. Generated avatar/QR SVG and PNG exports remain part of both applications.
+`npm run build` writes local tarballs, standalone ESM, catalogue/reference data, notices and a manifest into ignored `dist/release/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The release workflow keeps the tested staging directory as an internal Actions artifact for npm byte verification and bootstrap checks. Public packages, including their bundled standalone modules and artwork catalogue, download from npm. GitHub Releases contain change notes, npm links and versioned documentation, with no custom attachments; GitHub supplies its normal tagged source-code archives. The website links to GitHub and `docs/usage.md`. Do not restore the former PoC source ZIP or website package-download tree. Generated avatar/QR SVG and PNG exports remain part of both applications.
 
 Run checks appropriate to the change; see [validation.md](docs/validation.md). A software decode, visual screenshot, package-consumer test and real wallet-camera/print scan are different evidence. Chrome's native barcode detector may be unavailable; report the skip accurately. Physical device and print reliability must be validated separately before release.
 
@@ -92,4 +92,4 @@ Run checks appropriate to the change; see [validation.md](docs/validation.md). A
 
 Update the relevant `docs/` contract when behaviour changes. Keep README integration examples accurate. Put temporary screenshots/reports and timestamped `artifacts/{datetime}-session-handoff.md` files in the ignored artifact directory. A handoff should record actual validation, pending work, live process ownership and Git state; do not turn this guide into a session log.
 
-Keep `artifacts/`, `node_modules/`, package build outputs, `dist/` and generated downloads out of Git. Preserve unrelated user changes. A request to initialize a repository is not a request to commit, push, publish npm packages, deploy the site or create releases. Follow the user's authorization for those steps; do not invent remotes or claim that the local POC package names are published.
+Keep `artifacts/`, `node_modules/`, package build outputs and `dist/` out of Git. Preserve unrelated user changes. A request to initialize a repository is not a request to commit, push, publish npm packages, deploy the site or create releases. Follow the user's authorization for those steps; do not invent remotes or claim publication or deployment beyond observed evidence.

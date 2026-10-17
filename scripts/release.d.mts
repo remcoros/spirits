@@ -39,7 +39,49 @@ export function requireMatchingVersion(
   pkg: ReleasePackage,
   published: PublishedPackage | null,
 ): void;
-export function validateGitHubAssets(assets: { name: string }[], files: string[]): void;
+export interface GitHubRelease {
+  id: number;
+  tag_name: string;
+  draft: boolean;
+  prerelease: boolean;
+  assets: { name: string }[];
+  body: string | null;
+}
+export interface ReleaseNotesContext {
+  previousTag?: string | null;
+  generatedNotes?: string;
+  commits?: { sha: string; subject: string }[];
+}
+export function validateNotesOnlyRelease(current: GitHubRelease | null, release: Release): void;
+export function previousPublishedRelease(
+  release: Release,
+  releases: GitHubRelease[],
+): GitHubRelease | null;
+export function renderReleaseNotes(release: Release, context?: ReleaseNotesContext): string;
+export interface NotesPublicationOperations {
+  find(tag: string): Promise<GitHubRelease | null>;
+  list(): Promise<GitHubRelease[]>;
+  generateNotes(tag: string, previousTag: string | null): Promise<string>;
+  changes(tag: string, previousTag: string | null): Promise<{ sha: string; subject: string }[]>;
+  create(body: {
+    tag_name: string;
+    target_commitish?: string;
+    name: string;
+    body: string;
+    draft: boolean;
+    prerelease: boolean;
+  }): Promise<GitHubRelease>;
+  update(
+    id: number,
+    body: { body: string; draft: boolean; prerelease: boolean; make_latest: string },
+  ): Promise<unknown>;
+  read(id: number): Promise<GitHubRelease>;
+  latest(): Promise<GitHubRelease | null>;
+}
+export function publishNotesRelease(
+  release: Release & { commit?: string },
+  operations: NotesPublicationOperations,
+): Promise<GitHubRelease>;
 export function findGitHubRelease<T extends { tag_name: string }>(
   tag: string,
   api: (path: string, missing?: boolean) => Promise<T | T[] | null>,

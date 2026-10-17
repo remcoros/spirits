@@ -144,10 +144,122 @@ export function requireMatchingVersion(pkg, published) {
     );
 }
 
-export function validateGitHubAssets(assets, files) {
-  const expected = new Set(files.map((file) => basename(file)));
-  if (assets.some((asset) => !expected.has(asset.name)))
-    throw new Error('GitHub release contains an unreviewed asset.');
+export function validateNotesOnlyRelease(current, release) {
+  if (!current || current.tag_name !== release.tag)
+    throw new Error('GitHub release refers to an unexpected tag or could not be found.');
+  if (!Array.isArray(current.assets) || current.assets.length)
+    throw new Error(
+      `GitHub release ${release.tag} must contain notes only. Review and manually remove its uploaded attachments before retrying; this workflow never deletes historical assets.`,
+    );
+}
+
+/** Ignore draft, unrelated and newer releases when determining the actual preceding version. */
+export function previousPublishedRelease(release, releases) {
+  return (
+    releases
+      .filter((candidate) => {
+        if (candidate.draft) return false;
+        try {
+          return compareVersions(parseReleaseTag(candidate.tag_name).version, release.version) < 0;
+        } catch {
+          return false;
+        }
+      })
+      .sort((a, b) => compareVersions(b.tag_name.slice(1), a.tag_name.slice(1)))[0] ?? null
+  );
+}
+
+const markdownText = (value) => value.replace(/[\\`*_{}\[\]<>]/g, '\\$&');
+
+export function renderReleaseNotes(
+  release,
+  { previousTag = null, generatedNotes = '', commits = [] } = {},
+) {
+  const source = `https://github.com/${REPOSITORY}`,
+    tagged = `${source}/blob/${release.tag}`,
+    initial = release.version === '0.1.0-beta.1';
+  const introduction = initial
+    ? 'First public beta of SPirits: deterministic ghost avatars for Bitcoin Silent Payment addresses.'
+    : `SPirits ${release.version}${release.prerelease ? ' is a prerelease' : ' is available'}.`;
+  let changes;
+  if (initial) {
+    changes = [
+      '- Derive expressive ghosts from validated Silent Payment public addresses, with stable character traits and permanent accessories selected by the scan public key.',
+      '- Preserve the character across wallet labels while changing its small badge and trim accents.',
+      '- Render SVG from a platform-neutral TypeScript library, with an optional browser PNG adapter.',
+      '- Generate complete-address payment QRs with a larger circular Spirit badge, H error correction, four-module quiet zones and protected structural markers.',
+      '- Explore the local browser generator and development lab; address processing stays on the device.',
+    ].join('\n');
+  } else {
+    const details = generatedNotes.trim();
+    const hasGeneratedChanges = /^\s*[-*]\s+\S/m.test(details);
+    if (!hasGeneratedChanges && !commits.length)
+      throw new Error(
+        'No changes found for release notes; supply a real version change before publishing.',
+      );
+    changes = details;
+    if (!hasGeneratedChanges)
+      changes = `${commits.map(({ sha, subject }) => `- ${markdownText(subject)} ([${sha.slice(0, 7)}](${source}/commit/${sha}))`).join('\n')}${details ? `\n\n${details}` : ''}`;
+    if (previousTag && !details.includes('/compare/'))
+      changes += `\n\n[Compare ${previousTag} with ${release.tag}](${source}/compare/${previousTag}...${release.tag}).`;
+  }
+  return `${introduction}\n\n## Changes\n\n${changes}\n\n## Install\n\nBoth npm packages use the same exact version:\n\n\`\`\`sh\nnpm install ${PACKAGE_NAMES.map((name) => `${name}@${release.version}`).join(' ')}\n\`\`\`\n\n${PACKAGE_NAMES.map((name) => `[${name} ${release.version}](https://www.npmjs.com/package/${name}/v/${release.version})`).join(' · ')}\n\n[Usage guide for ${release.tag}](${tagged}/docs/usage.md) · [Tagged source](${source}/tree/${release.tag}) · [Algorithm](${tagged}/docs/algorithm.md) · [QR behavior](${tagged}/docs/qr.md)\n\nThe public generator follows main; the npm versions above contain the tagged library implementation. GitHub provides automatic source archives; built packages are distributed through npm.\n\n## Experimental status\n\nThe spirits-v0 visual scheme is experimental and may change before v1. A Spirit is a recognition aid, not proof of ownership or a globally unique address fingerprint.\n\nAutomated tests decode final composed QR images in software. Physical wallet-camera and print reliability still need separate validation; software decoding does not establish compatibility with every reader.\n`;
+}
+
+/** Publish or resume a notes-only release. npm publication and verification already completed. */
+export async function publishNotesRelease(release, operations) {
+  let current = await operations.find(release.tag);
+  if (current) {
+    validateNotesOnlyRelease(current, release);
+    if (!current.draft) {
+      if (current.prerelease !== release.prerelease || !current.body?.trim())
+        throw new Error('Published release metadata or notes need manual review before retrying.');
+      return current; // Preserve published and manually curated notes on retries.
+    }
+  }
+  let notes = current?.body?.trim() ? current.body : null;
+  if (!notes) {
+    const previous = previousPublishedRelease(release, await operations.list());
+    const previousTag = previous?.tag_name ?? null;
+    notes = renderReleaseNotes(release, {
+      previousTag,
+      generatedNotes:
+        release.version === '0.1.0-beta.1'
+          ? ''
+          : await operations.generateNotes(release.tag, previousTag),
+      commits:
+        release.version === '0.1.0-beta.1'
+          ? []
+          : await operations.changes(release.tag, previousTag),
+    });
+  }
+  if (!current) {
+    current = await operations.create({
+      tag_name: release.tag,
+      target_commitish: release.commit,
+      name: release.tag,
+      body: notes,
+      draft: true,
+      prerelease: release.prerelease,
+    });
+    validateNotesOnlyRelease(current, release);
+    if (!current.draft) throw new Error('New GitHub release was not created as a draft.');
+  }
+  const latest = await operations.latest();
+  const markLatest =
+    !release.prerelease &&
+    (!latest || compareVersions(latest.tag_name.slice(1), release.version) <= 0);
+  await operations.update(current.id, {
+    body: notes,
+    draft: false,
+    prerelease: release.prerelease,
+    make_latest: String(markLatest),
+  });
+  const final = await operations.read(current.id);
+  validateNotesOnlyRelease(final, release);
+  if (final.draft || final.prerelease !== release.prerelease || final.body !== notes)
+    throw new Error('GitHub release publication state or notes could not be verified.');
+  return final;
 }
 
 /** The tag endpoint only returns published releases; drafts must be found in the list. */
@@ -392,19 +504,19 @@ async function verifyBootstrap(root, tag) {
   console.log('Verified manually bootstrapped registry packages and channel without npm writes.');
 }
 
-async function artifactFiles(directory, manifest) {
+async function artifactFiles(manifest) {
   const files = [...Object.keys(manifest.integrity), 'manifest.json'].toSorted();
   const seen = new Set();
   for (const file of files) {
-    // Release asset names are flat. Refuse collisions between nested notices/spec files.
-    if (seen.has(basename(file))) throw new Error(`Duplicate GitHub asset basename: ${file}`);
+    // The CI artifact uses flat names for portable bootstrap checksum verification.
+    if (seen.has(basename(file))) throw new Error(`Duplicate CI artifact basename: ${file}`);
     seen.add(basename(file));
   }
   return files;
 }
 async function prepare(root, tag) {
   const { release, directory, manifest } = await loadArtifacts(root, tag);
-  const files = await artifactFiles(directory, manifest);
+  const files = await artifactFiles(manifest);
   const sums = await Promise.all(
     files.map(
       async (file) =>
@@ -418,7 +530,9 @@ async function prepare(root, tag) {
 }
 
 async function githubRelease(root, tag) {
-  const { release, directory, manifest } = await loadArtifacts(root, tag);
+  // Release tooling can come from the workflow commit while cwd remains the signed source tag.
+  // This phase deliberately needs no build outputs or artifact manifest.
+  const release = await validateCheckout(root, tag);
   if (!process.env.GH_TOKEN || process.env.GITHUB_REPOSITORY !== REPOSITORY)
     throw new Error('GitHub release requires canonical repository workflow credentials.');
   const headers = {
@@ -426,109 +540,63 @@ async function githubRelease(root, tag) {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
   };
-  const api = async (path, missing = false) => {
+  const api = async (path, missing = false, write) => {
     const response = await request(
       `https://api.github.com/repos/${REPOSITORY}/${path}`,
-      { headers },
+      write
+        ? {
+            headers: { ...headers, 'Content-Type': 'application/json' },
+            method: write.method,
+            body: JSON.stringify(write.body),
+          }
+        : { headers },
       missing,
     );
     return response ? response.json() : null;
   };
-  const files = [...(await artifactFiles(directory, manifest)), 'SHA256SUMS'];
-  // Verify the checksum file itself is the one generated from this same artifact set.
-  const expected =
-    (
-      await Promise.all(
-        files
-          .filter((f) => f !== 'SHA256SUMS')
-          .map(
-            async (file) =>
-              `${createHash('sha256')
-                .update(await readFile(join(directory, file)))
-                .digest('hex')}  ${file}`,
-          ),
-      )
-    ).join('\n') + '\n';
-  if ((await readFile(join(directory, 'SHA256SUMS'), 'utf8')) !== expected)
-    throw new Error('Release checksum file is missing or stale.');
-  let current = await findGitHubRelease(tag, api);
-  if (!current) {
-    const notes = join(await mkdtemp(join(tmpdir(), 'spirits-notes-')), 'notes.md');
-    try {
-      await writeFile(
-        notes,
-        `Experimental SPirits ${release.version}.\n\nInstall both matching packages with \`npm install ${PACKAGE_NAMES.map((name) => `${name}@${release.version}`).join(' ')}\`.\n\nThe generator follows main; these assets contain the exact tagged source build. See docs/releasing.md for verification and remaining camera/print validation limits.\n`,
+  await publishNotesRelease(release, {
+    find: (tag) => findGitHubRelease(tag, api),
+    list: async () => {
+      const releases = [];
+      for (let page = 1; ; page++) {
+        const batch = await api(`releases?per_page=100&page=${page}`);
+        releases.push(...batch);
+        if (batch.length < 100) return releases;
+      }
+    },
+    generateNotes: async (tag, previousTag) =>
+      (
+        await api('releases/generate-notes', false, {
+          method: 'POST',
+          body: {
+            tag_name: tag,
+            target_commitish: release.commit,
+            ...(previousTag ? { previous_tag_name: previousTag } : {}),
+          },
+        })
+      ).body,
+    changes: async (tag, previousTag) => {
+      const range = previousTag ? `refs/tags/${previousTag}..refs/tags/${tag}` : `refs/tags/${tag}`;
+      const output = run(
+        'git',
+        ['log', '--reverse', '--no-merges', '--format=%H%x00%s', range, '--'],
+        { cwd: root },
       );
-      run(
-        'gh',
-        [
-          'release',
-          'create',
-          tag,
-          '--repo',
-          REPOSITORY,
-          '--verify-tag',
-          '--draft',
-          '--title',
-          tag,
-          '--notes-file',
-          notes,
-        ],
-        { stdio: 'inherit' },
-      );
-    } finally {
-      await rm(resolve(notes, '..'), { recursive: true, force: true });
-    }
-    current = await findGitHubRelease(tag, api);
-  }
-  if (!current || current.tag_name !== tag)
-    throw new Error('GitHub release refers to an unexpected tag or could not be found.');
-  const releasePath = `releases/${current.id}`;
-  validateGitHubAssets(current.assets, files);
-  for (const file of files) {
-    const path = join(directory, file),
-      digest = `sha256:${createHash('sha256')
-        .update(await readFile(path))
-        .digest('hex')}`;
-    const existing = current.assets.find((asset) => asset.name === basename(file));
-    if (existing) {
-      if (existing.digest !== digest)
-        throw new Error(`Existing GitHub asset differs: ${file}; never clobber release assets.`);
-    } else {
-      if (!current.draft)
-        throw new Error(
-          `Published release is missing ${file}; investigate before publishing another version.`,
-        );
-      run('gh', ['release', 'upload', tag, path, '--repo', REPOSITORY], { stdio: 'inherit' });
-      current = await api(releasePath);
-      if (current.assets.find((asset) => asset.name === basename(file))?.digest !== digest)
-        throw new Error(`Could not verify uploaded GitHub asset ${file}.`);
-    }
-  }
-  if (current.draft) {
-    const latest = await api('releases/latest', true);
-    const markLatest =
-      !release.prerelease &&
-      (!latest || compareVersions(latest.tag_name.slice(1), release.version) <= 0);
-    run(
-      'gh',
-      [
-        'release',
-        'edit',
-        tag,
-        '--repo',
-        REPOSITORY,
-        '--draft=false',
-        `--prerelease=${release.prerelease}`,
-        `--latest=${markLatest}`,
-      ],
-      { stdio: 'inherit' },
-    );
-  }
-  const final = await api(releasePath);
-  if (final.tag_name !== tag || final.draft || final.prerelease !== release.prerelease)
-    throw new Error('GitHub release publication state could not be verified.');
-  console.log(`Verified GitHub release ${tag} and ${files.length} identical assets.`);
+      return output
+        ? output.split('\n').map((line) => {
+            const [sha, subject] = line.split('\0');
+            return { sha, subject };
+          })
+        : [];
+    },
+    create: (body) => api('releases', false, { method: 'POST', body }),
+    update: (id, body) => api(`releases/${id}`, false, { method: 'PATCH', body }),
+    read: (id) => api(`releases/${id}`),
+    latest: () => api('releases/latest', true),
+  });
+  console.log(
+    `Verified notes-only GitHub release ${tag}; built packages are distributed through npm.`,
+  );
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

@@ -39,7 +39,7 @@ jobs:
         run: npm run check
       - name: Test library contracts and final QR images
         run: npm test
-      - name: Build release assets and static site
+      - name: Build package verification artifacts and static site
         run: npm run build
       - name: Test isolated package consumers
         run: npm run test:packages

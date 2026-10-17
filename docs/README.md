@@ -2,7 +2,7 @@
 
 These documents describe the current SPirits implementation and the decisions behind it. Update the relevant note when changing its contract; keep session history and temporary findings in ignored `artifacts/` handoffs instead.
 
-- [Usage](usage.md): npm packages, downloadable release assets, integration and browser exports.
+- [Usage](usage.md): npm packages, extracting standalone modules and artwork, integration and browser exports.
 - [Releasing](releasing.md): initial npm setup, trusted publishing and tagged releases.
 - [Hosting](hosting.md): GitHub Pages deployment and the custom domain.
 - [Architecture](architecture.md): package boundaries, browser adapters, application flows and distribution.

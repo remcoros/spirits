@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -11,7 +11,10 @@ import {
   compareVersions,
   validateVersions,
   validateCheckout,
-  validateGitHubAssets,
+  validateNotesOnlyRelease,
+  previousPublishedRelease,
+  renderReleaseNotes,
+  publishNotesRelease,
   findGitHubRelease,
   tarballIntegrity,
   ensurePublished,
@@ -19,6 +22,8 @@ import {
   type ReleasePackage,
   type PublishedPackage,
   type PublishOperations,
+  type GitHubRelease,
+  type NotesPublicationOperations,
 } from '../scripts/release.mjs';
 
 const release = parseReleaseTag('v0.1.0-beta.1');
@@ -48,16 +53,197 @@ const metadata = () => {
   return { root, core, qr, lock };
 };
 
-test('GitHub release asset names are validated without treating map indexes as path suffixes', () => {
-  validateGitHubAssets(
-    [{ name: 'manifest.json' }, { name: 'spirits.mjs' }],
-    ['manifest.json', 'spirits.mjs', 'SHA256SUMS'],
-  );
-  validateGitHubAssets([], ['manifest.json']);
+const githubRecord = (overrides: Partial<GitHubRelease> = {}): GitHubRelease => ({
+  id: 42,
+  tag_name: release.tag,
+  draft: false,
+  prerelease: true,
+  assets: [],
+  body: 'Maintainer release notes.',
+  ...overrides,
+});
+
+test('GitHub release validation requires no attachments and never deletes historical assets', () => {
+  validateNotesOnlyRelease(githubRecord(), release);
   assert.throws(
-    () => validateGitHubAssets([{ name: 'surprise.tgz' }], ['manifest.json']),
-    /unreviewed/,
+    () =>
+      validateNotesOnlyRelease(githubRecord({ assets: [{ name: 'old-package.tgz' }] }), release),
+    /manually remove.*never deletes/,
   );
+  assert.throws(
+    () => validateNotesOnlyRelease(githubRecord({ tag_name: 'v0.1.0-beta.2' }), release),
+    /unexpected tag/,
+  );
+});
+
+test('initial beta notes contain exact npm installs, features, source and validation limits', () => {
+  const notes = renderReleaseNotes(release);
+  assert.equal(notes, renderReleaseNotes(release));
+  assert.match(
+    notes,
+    /npm install @remcoros\/spirits@0\.1\.0-beta\.1 @remcoros\/spirits-qr@0\.1\.0-beta\.1/,
+  );
+  assert.match(notes, /npmjs\.com\/package\/@remcoros\/spirits\/v\/0\.1\.0-beta\.1/);
+  assert.match(notes, /scan public key/);
+  assert.match(notes, /circular Spirit badge/);
+  assert.match(notes, /blob\/v0\.1\.0-beta\.1\/docs\/usage\.md/);
+  assert.match(notes, /tree\/v0\.1\.0-beta\.1/);
+  assert.match(notes, /not proof of ownership/);
+  assert.match(notes, /Physical wallet-camera and print reliability/);
+  assert.doesNotMatch(notes, /releases\/download|SHA256SUMS|attached assets/);
+});
+
+test('later notes use the highest lower published SemVer and retain real changes without PRs', () => {
+  const next = parseReleaseTag('v0.2.0');
+  const candidates = [
+    githubRecord({ tag_name: 'v0.1.0' }),
+    githubRecord({ tag_name: 'v0.2.0-rc.1' }),
+    githubRecord({ tag_name: 'v0.2.0-rc.2', draft: true }),
+    githubRecord({ tag_name: 'v0.2.0' }),
+    githubRecord({ tag_name: 'v0.3.0' }),
+    githubRecord({ tag_name: 'launch' }),
+  ];
+  assert.equal(previousPublishedRelease(next, candidates)?.tag_name, 'v0.2.0-rc.1');
+  assert.equal(previousPublishedRelease(release, candidates), null);
+  const sha = 'a'.repeat(40);
+  const notes = renderReleaseNotes(next, {
+    previousTag: 'v0.2.0-rc.1',
+    generatedNotes:
+      '**Full Changelog**: https://github.com/remcoros/spirits/compare/v0.2.0-rc.1...v0.2.0',
+    commits: [{ sha, subject: 'Fix stale QR export after address changes' }],
+  });
+  assert.match(notes, /Fix stale QR export after address changes/);
+  assert.match(notes, new RegExp(`/commit/${sha}`));
+  assert.match(notes, /Full Changelog/);
+  assert.match(notes, /blob\/v0\.2\.0\/docs\/usage\.md/);
+  assert.throws(
+    () => renderReleaseNotes(next, { generatedNotes: '**Full Changelog**: compare only' }),
+    /No changes found/,
+  );
+  const generated = renderReleaseNotes(next, {
+    previousTag: 'v0.1.0',
+    generatedNotes: "## What's Changed\n* Improve recognition at 32px by @contributor in #12",
+    commits: [{ sha, subject: 'Implementation detail' }],
+  });
+  assert.match(generated, /Improve recognition at 32px/);
+  assert.doesNotMatch(generated, /Implementation detail/);
+});
+
+function fakeNotesRelease(existing: GitHubRelease | null = null) {
+  let current = existing;
+  const calls: string[] = [],
+    creates: unknown[] = [],
+    updates: Parameters<NotesPublicationOperations['update']>[1][] = [];
+  const operations: NotesPublicationOperations = {
+    find: async () => {
+      calls.push('find');
+      return current;
+    },
+    list: async () => {
+      calls.push('list');
+      return [];
+    },
+    generateNotes: async () => {
+      calls.push('generate');
+      return '* Real improvement';
+    },
+    changes: async () => {
+      calls.push('changes');
+      return [];
+    },
+    latest: async () => {
+      calls.push('latest');
+      return null;
+    },
+    create: async (body) => {
+      calls.push('create');
+      creates.push(body);
+      current = githubRecord(body);
+      return current;
+    },
+    update: async (id, body) => {
+      assert.equal(id, 42);
+      calls.push('update');
+      updates.push(body);
+      current = { ...current!, ...body };
+    },
+    read: async (id) => {
+      assert.equal(id, 42);
+      calls.push('read');
+      return current!;
+    },
+  };
+  return { operations, calls, creates, updates };
+}
+
+test('notes-only publication creates and publishes a draft without any build-file or upload operation', async () => {
+  const fake = fakeNotesRelease();
+  const final = await publishNotesRelease({ ...release, commit: 'a'.repeat(40) }, fake.operations);
+  assert.equal(final.draft, false);
+  assert.deepEqual(final.assets, []);
+  assert.deepEqual(fake.calls, ['find', 'list', 'create', 'latest', 'update', 'read']);
+  assert.deepEqual(Object.keys(fake.creates[0] as object).sort(), [
+    'body',
+    'draft',
+    'name',
+    'prerelease',
+    'tag_name',
+    'target_commitish',
+  ]);
+  assert.equal(fake.updates[0].make_latest, 'false');
+  assert.deepEqual(fake.updates[0].body, renderReleaseNotes(release));
+});
+
+test('published retries preserve curated notes and do not create, update or regenerate content', async () => {
+  const record = githubRecord({
+    body: 'Manually curated beta notes and corrected main usage guide.',
+  });
+  const fake = fakeNotesRelease(record);
+  assert.equal(await publishNotesRelease(release, fake.operations), record);
+  assert.deepEqual(fake.calls, ['find']);
+  const attached = fakeNotesRelease(githubRecord({ assets: [{ name: 'legacy.tgz' }] }));
+  await assert.rejects(publishNotesRelease(release, attached.operations), /manually remove/);
+  assert.deepEqual(attached.calls, ['find']);
+  const wrong = fakeNotesRelease(githubRecord({ tag_name: 'v0.1.0-beta.2' }));
+  await assert.rejects(publishNotesRelease(release, wrong.operations), /unexpected tag/);
+  assert.deepEqual(wrong.calls, ['find']);
+});
+
+test('draft retries preserve manually edited notes and stable publication never rolls latest backward', async () => {
+  const draft = fakeNotesRelease(githubRecord({ draft: true, body: 'Edited draft notes.' }));
+  const result = await publishNotesRelease(release, draft.operations);
+  assert.equal(result.body, 'Edited draft notes.');
+  assert.deepEqual(draft.calls, ['find', 'latest', 'update', 'read']);
+  for (const [latestTag, expectedLatest] of [
+    ['v0.3.0', 'false'],
+    ['v0.1.0', 'true'],
+  ] as const) {
+    const stable = parseReleaseTag('v0.2.0');
+    const fake = fakeNotesRelease(
+      githubRecord({ tag_name: stable.tag, prerelease: false, draft: true }),
+    );
+    fake.operations.latest = async () => githubRecord({ tag_name: latestTag, prerelease: false });
+    await publishNotesRelease(stable, fake.operations);
+    assert.equal(fake.updates[0].make_latest, expectedLatest);
+    assert.equal(fake.updates[0].prerelease, false);
+  }
+  const wrongRead = fakeNotesRelease();
+  wrongRead.operations.read = async () => githubRecord({ tag_name: 'v9.0.0' });
+  await assert.rejects(publishNotesRelease(release, wrongRead.operations), /unexpected tag/);
+});
+
+test('GitHub workflow uses current tooling with tagged cwd and no release artifact download', async () => {
+  const workflow = await readFile(
+    new URL('../.github/workflows/release.yml', import.meta.url),
+    'utf8',
+  );
+  const [beforeGitHub, github] = workflow.split('\n  github:');
+  assert.match(beforeGitHub, /actions\/upload-artifact@/);
+  assert.match(beforeGitHub, /actions\/download-artifact@/);
+  assert.match(github, /ref: \$\{\{ github\.workflow_sha \}\}/);
+  assert.match(github, /working-directory: release-source/);
+  assert.match(github, /node \.\.\/release-tools\/scripts\/release\.mjs github/);
+  assert.doesNotMatch(github, /download-artifact|dist\/release|release upload/);
 });
 
 test('release discovery resumes a draft after the published-tag endpoint returns 404', async () => {

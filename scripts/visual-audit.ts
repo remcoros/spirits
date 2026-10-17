@@ -3,13 +3,17 @@ import { fixtureAddress } from '../apps/shared/fixtures.js';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-const count = 1024,
+import { join } from 'node:path';
+import { findSimilar, similarityModes, type SimilarityMode } from './similarity.js';
+const count = Number(process.argv[2] ?? 1024),
+  output = process.argv[3] ?? 'artifacts',
   seen = new Map<number, Set<string>>([
     [32, new Set()],
     [64, new Set()],
   ]);
-const samples: { recipe: SpiritRecipe; rgb32: Buffer; rgb64: Buffer; gray: Uint8Array }[] =
-  new Array(count);
+if (!Number.isInteger(count) || count < 2 || count > 50000)
+  throw new Error('Use a sample size from 2 to 50000, optionally followed by an output directory.');
+const samples: { recipe: SpiritRecipe; rgb32: Buffer; gray: Uint8Array }[] = new Array(count);
 // Full-severity matrices from Machado, Oliveira and Fernandes (2009), applied in linear sRGB.
 // https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html
 const matrices = {
@@ -76,36 +80,40 @@ for (let start = 0; start < count; start += 16) {
       samples[start + i] = {
         recipe,
         rgb32,
-        rgb64: pixelsBySize.get(64)!,
         gray: Uint8Array.from(simulate(rgb32, 'grayscale').filter((_, p) => p % 3 === 0)),
       };
     }),
   );
+  if ((start + 16) % 1024 === 0)
+    console.error(`Rasterised ${Math.min(start + 16, count)}/${count} fixed-label characters.`);
 }
-// Rank candidates for visual review; this background-sensitive metric is not a recognition test.
-const nearest: { a: number; b: number; meanPixelDifference: number }[] = [];
-for (let a = 0; a < count; a++) {
-  for (let b = 0; b < a; b++) {
-    let difference = 0;
-    for (let p = 0; p < samples[a].gray.length; p++)
-      difference += Math.abs(samples[a].gray[p] - samples[b].gray[p]);
-    const meanPixelDifference = difference / (samples[a].gray.length * 255);
-    if (
-      nearest.length < 12 ||
-      meanPixelDifference < nearest[nearest.length - 1].meanPixelDifference
-    ) {
-      nearest.push({ a, b, meanPixelDifference });
-      nearest.sort((x, y) => x.meanPixelDifference - y.meanPixelDifference);
-      nearest.length = Math.min(12, nearest.length);
-    }
+console.error('Selecting grayscale, colour and outline candidates for visual review.');
+const similarity = findSimilar(samples);
+const nearest: { a: number; b: number; difference: number; mode: SimilarityMode }[] = [];
+const selectedPairs = new Set<string>();
+for (let rank = 0; rank < 24 && nearest.length < 12; rank++)
+  for (const mode of similarityModes) {
+    const pair = similarity.modes[mode][rank];
+    if (!pair || nearest.length === 12) continue;
+    const key = `${pair.a}/${pair.b}`;
+    if (selectedPairs.has(key)) continue;
+    selectedPairs.add(key);
+    nearest.push({ ...pair, mode });
   }
-}
-await mkdir('artifacts', { recursive: true });
+await mkdir(output, { recursive: true });
 const text = (x: number, y: number, value: string, size = 14) =>
   `<text x="${x}" y="${y}" font-family="sans-serif" font-size="${size}" fill="#242b29">${value}</text>`;
 async function imageAt(index: number, x: number, y: number, size: 32 | 64, vision: Vision) {
   const sample = samples[index];
-  const png = await sharp(simulate(size === 32 ? sample.rgb32 : sample.rgb64, vision), {
+  const rgb =
+    size === 32
+      ? sample.rgb32
+      : await sharp(Buffer.from(renderSpirit(sample.recipe, { size, background: 'paper' })))
+          .flatten({ background: '#fffdf7' })
+          .removeAlpha()
+          .raw()
+          .toBuffer();
+  const png = await sharp(simulate(rgb, vision), {
     raw: { width: size, height: size, channels: 3 },
   })
     .png()
@@ -116,7 +124,7 @@ async function imageAt(index: number, x: number, y: number, size: 32 | 64, visio
 const selected = [
   ...new Set([
     ...nearest.slice(0, 3).flatMap(({ a, b }) => [a, b]),
-    ...Array.from({ length: 12 }, (_, i) => i),
+    ...Array.from({ length: Math.min(12, count) }, (_, i) => i),
   ]),
 ].slice(0, 12);
 const visions: Vision[] = ['colour', 'grayscale', 'protanopia', 'deuteranopia', 'tritanopia'];
@@ -139,27 +147,28 @@ for (let row = 0; row < visions.length; row++) {
   }
 }
 sheet += '</svg>';
-await sharp(Buffer.from(sheet)).png().toFile('artifacts/visual-vision-sheet.png');
+await sharp(Buffer.from(sheet)).png().toFile(join(output, 'visual-vision-sheet.png'));
 let pairs =
   '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680"><rect width="1000" height="680" fill="#f8f6ed"/>';
 pairs += text(
   20,
   28,
-  'Nearest grayscale pixel candidates · 1,024 fixtures · fixed label accents',
+  `Close grayscale / colour / outline candidates · ${count.toLocaleString('en-US')} fixtures · fixed labels`,
   19,
 );
 for (let i = 0; i < nearest.length; i++) {
-  const { a, b } = nearest[i],
+  const { a, b, mode } = nearest[i],
     x = 20 + (i % 4) * 246,
     y = 48 + Math.floor(i / 4) * 208;
   pairs += await imageAt(a, x, y, 64, 'colour');
   pairs += await imageAt(b, x + 76, y, 64, 'colour');
   pairs += await imageAt(a, x, y + 74, 32, 'grayscale');
   pairs += await imageAt(b, x + 42, y + 74, 32, 'grayscale');
-  pairs += text(x, y + 137, `${a} / ${b} · compare at real size`, 12);
+  pairs += text(x, y + 137, `${a} / ${b} · ${mode}`, 12);
+  pairs += text(x, y + 157, 'Review two memorable differences', 11);
 }
 pairs += '</svg>';
-await sharp(Buffer.from(pairs)).png().toFile('artifacts/visual-nearest-pairs.png');
+await sharp(Buffer.from(pairs)).png().toFile(join(output, 'visual-nearest-pairs.png'));
 const report = {
   sampleSize: count,
   labelAccentsFixed: true,
@@ -170,14 +179,20 @@ const report = {
       { distinctRasters: hashes.size, exactDuplicates: count - hashes.size },
     ]),
   ),
-  nearestCandidates: nearest.map(({ a, b, meanPixelDifference }) => ({
+  search: similarity.search,
+  candidatesByMode: similarity.modes,
+  nearestCandidates: nearest.map(({ a, b, difference, mode }) => ({
     a,
     b,
-    meanPixelDifference,
+    difference,
+    mode,
     characterA: samples[a].recipe.character,
     characterB: samples[b].recipe.character,
   })),
-  comparisonSheets: ['artifacts/visual-vision-sheet.png', 'artifacts/visual-nearest-pairs.png'],
+  comparisonSheets: [
+    join(output, 'visual-vision-sheet.png'),
+    join(output, 'visual-nearest-pairs.png'),
+  ],
   visionSimulation: {
     source: 'https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html',
     method: 'Machado et al. 2009, severity 1.0, linear sRGB; grayscale uses linear luminance.',
@@ -186,5 +201,5 @@ const report = {
   limitation:
     'Exact pixel uniqueness, exploratory pixel distances and simulated colour vision do not establish human recognition rates or global uniqueness.',
 };
-await writeFile('artifacts/visual-audit.json', JSON.stringify(report, null, 2) + '\n');
+await writeFile(join(output, 'visual-audit.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report, null, 2));

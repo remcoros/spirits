@@ -27,7 +27,7 @@
         "glyph": 4275
       }
     },
-    "svgSha256": "bd20e14958f815032879edceaf9d42dcdb9158675260ef934baf8d521955f66f"
+    "svgSha256": "0624522d4e551d92b8cca1287efab61c5e8dba73be499d3729b2df0b30076cb1"
   },
   {
     "fixtureSeed": "hello-spirit",
@@ -57,7 +57,7 @@
         "glyph": 4275
       }
     },
-    "svgSha256": "bd20e14958f815032879edceaf9d42dcdb9158675260ef934baf8d521955f66f"
+    "svgSha256": "0624522d4e551d92b8cca1287efab61c5e8dba73be499d3729b2df0b30076cb1"
   },
   {
     "fixtureSeed": "hello-spirit",
@@ -87,7 +87,7 @@
         "glyph": 11599
       }
     },
-    "svgSha256": "c595c7424c40a7c5cfa4d136d34d30bdd630f0de0281fbd8fea2442909f77545"
+    "svgSha256": "f2604631934038a898e939391bd82ec97456ce670176f4f918ba3334d4ea53b9"
   },
   {
     "fixtureSeed": "hello-spirit",
@@ -117,7 +117,7 @@
         "glyph": 11599
       }
     },
-    "svgSha256": "c595c7424c40a7c5cfa4d136d34d30bdd630f0de0281fbd8fea2442909f77545"
+    "svgSha256": "f2604631934038a898e939391bd82ec97456ce670176f4f918ba3334d4ea53b9"
   },
   {
     "fixtureSeed": "hello-spirit",
@@ -147,7 +147,7 @@
         "glyph": 18201
       }
     },
-    "svgSha256": "7a8aeeb0aa39e1af9d44afc84d4bc803a6e98e54f173c4fb33eb743ee1a11804"
+    "svgSha256": "8e7802dfc19f741d96a58c39ea363266a908f5d7495a2ee3e84511a5aed262de"
   },
   {
     "fixtureSeed": "hello-spirit",
@@ -177,7 +177,7 @@
         "glyph": 18201
       }
     },
-    "svgSha256": "7a8aeeb0aa39e1af9d44afc84d4bc803a6e98e54f173c4fb33eb743ee1a11804"
+    "svgSha256": "8e7802dfc19f741d96a58c39ea363266a908f5d7495a2ee3e84511a5aed262de"
   },
   {
     "fixtureSeed": "vector-2",
@@ -207,7 +207,7 @@
         "glyph": 41841
       }
     },
-    "svgSha256": "1429f0eeafb1867df493aa1efbc0525e9321e5c0529c345641785c3144c6a61d"
+    "svgSha256": "1a8e8f4bfbe8b32afdd38d5b0fddd1e57013473e36ebc4e78fd6ebe7bd6eddbb"
   },
   {
     "fixtureSeed": "vector-2",
@@ -237,7 +237,7 @@
         "glyph": 41841
       }
     },
-    "svgSha256": "1429f0eeafb1867df493aa1efbc0525e9321e5c0529c345641785c3144c6a61d"
+    "svgSha256": "1a8e8f4bfbe8b32afdd38d5b0fddd1e57013473e36ebc4e78fd6ebe7bd6eddbb"
   },
   {
     "fixtureSeed": "vector-2",
@@ -267,7 +267,7 @@
         "glyph": 18412
       }
     },
-    "svgSha256": "6b85406b8a276be6a2f65c776a4231b0657cad9646ae4afd15c95a0a3169f5e6"
+    "svgSha256": "cd26f83a542cc0c96dfbc7cd294716b8a9e32a4b370319161b84dcd48cecac01"
   },
   {
     "fixtureSeed": "vector-2",
@@ -297,7 +297,7 @@
         "glyph": 18412
       }
     },
-    "svgSha256": "6b85406b8a276be6a2f65c776a4231b0657cad9646ae4afd15c95a0a3169f5e6"
+    "svgSha256": "cd26f83a542cc0c96dfbc7cd294716b8a9e32a4b370319161b84dcd48cecac01"
   },
   {
     "fixtureSeed": "vector-2",
@@ -327,7 +327,7 @@
         "glyph": 18762
       }
     },
-    "svgSha256": "3b145ccb294b463f8b683f38bcc7031dc12993a2c7f0b9dd4385c6156e8e49cb"
+    "svgSha256": "bfef62d180ebc59c5a5810099adbbf2a4e7057033d28fc4bba6401d7a62500eb"
   },
   {
     "fixtureSeed": "vector-2",
@@ -357,6 +357,6 @@
         "glyph": 18762
       }
     },
-    "svgSha256": "3b145ccb294b463f8b683f38bcc7031dc12993a2c7f0b9dd4385c6156e8e49cb"
+    "svgSha256": "bfef62d180ebc59c5a5810099adbbf2a4e7057033d28fc4bba6401d7a62500eb"
   }
 ]

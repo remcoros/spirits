@@ -25,6 +25,7 @@ npm run test:browser   # built site: responsive UI, exports, lab and independent
 npm run test:packages  # tarballs installed into a separate Node/TypeScript consumer
 npm run audit:variety -- 10000
 npm run audit:visual    # sample 1024 core characters at 32px and 64px, with fixed label accents
+npm run audit:visual -- 50000 artifacts/my-review # larger pool, approximate close-pair search
 npm run format:check   # check source formatting without changing files
 ```
 
@@ -71,7 +72,7 @@ Inputs are trimmed and validated before lowercasing. Mainnet `sp` and test-netwo
 
 The scan key selects all nine core character traits. The advertised spend key participates in selecting the small badge and trim variation. Network prefixes do not change artwork for the same keys. See [the algorithm contract](docs/algorithm.md), [the catalogue](packages/core/assets/spirits-v0.json) and [test vectors](spec/test-vectors.json).
 
-The catalogue has 384 entries including palettes and label accents. Its core trait space has about 70 trillion raw combinations. That does not mean 70 trillion human-distinguishable characters; exact or perceptual collisions remain possible. Several variants are transformations of a shared motif. The lab supports keeping characters for comparison with fixed label accents and grayscale previews. `npm run audit:visual` also produces fixed-label comparison sheets with grayscale and simulated colour-vision differences, plus close pixel-match candidates. Those are review tools, not measured human recognition rates.
+The catalogue has 384 entries including palettes and label accents. It includes 32 primary body contours, eight tail constructions, 32 head motifs, 32 permanent-item motifs and 16 broad marking designs, alongside expression and pose variants. Its core trait space has about 70 trillion raw combinations. That does not mean 70 trillion human-distinguishable characters; exact or perceptual collisions remain possible. Several variants are transformations of a shared motif. The lab supports keeping characters for comparison with fixed label accents and grayscale previews. `npm run audit:visual` also produces fixed-label comparison sheets with grayscale and simulated colour-vision differences, plus close grayscale, colour and outline candidates. Its larger-pool search is approximate. Those are review tools, not measured human recognition rates. See [the artwork review goal](docs/artwork.md#composition-checks) before freezing a visual scheme.
 
 ## QR behaviour and validation limits
 

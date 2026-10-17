@@ -146,6 +146,37 @@ test('final QR images survive display-size resampling and mild blur at 250 and 3
   assert.equal(count, 96);
 });
 
+test('small final QRs decode with every body, head, marking and permanent item', async () => {
+  const groups = ['body', 'head', 'marking', 'item'] as const;
+  const missing = new Set<string>(
+    groups.flatMap((group) => artwork.groups[group].map((asset) => asset.id)),
+  );
+  let checked = 0;
+  for (let seed = 0; seed < 2048 && missing.size; seed++) {
+    const address = fixtureAddress(`qr-catalogue-${seed}`),
+      recipe = deriveSpirit(address);
+    if (!groups.some((group) => missing.has(recipe.character[group]))) continue;
+    for (const scale of [2, 3]) {
+      const qr = createSpiritQr(address, { scale });
+      const { data, info } = await sharp(Buffer.from(qr.svg))
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      assert.equal(
+        decode(new Uint8ClampedArray(data), info.width, info.height, {
+          inversionAttempts: 'dontInvert',
+        })?.data,
+        address,
+        `catalogue seed=${seed}, scale=${scale}`,
+      );
+      checked++;
+    }
+    for (const group of groups) missing.delete(recipe.character[group]);
+  }
+  assert.equal(missing.size, 0, `Missing catalogue coverage: ${[...missing].join(', ')}`);
+  assert.ok(checked >= 64 * 2);
+});
+
 test('tighter QR framing contains every catalogue shape and complete body/hem pairing', async () => {
   const base = deriveSpirit(fixtureAddress('qr-full-character'));
   const recipes = [];

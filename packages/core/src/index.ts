@@ -147,9 +147,9 @@ export function renderAsset(group: AssetGroup, id: string, size = 128): string {
     eyes: 'translate(-55 -70) scale(1.45)',
     mouth: 'translate(-140 -200) scale(2)',
     brows: 'translate(-70 -85) scale(1.5)',
-    marking: 'translate(-130 -205) scale(2)',
+    marking: 'translate(-376 -568) scale(4)',
     head: 'translate(-45 50) scale(1.35)',
-    item: 'translate(-440 -410) scale(3.2)',
+    item: 'translate(-260 -244) scale(2.1)',
     badge: 'translate(128 128) scale(6)',
   };
   let svg = item.svg ?? '';

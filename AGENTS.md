@@ -65,7 +65,7 @@ The 70-trillion raw recipe count includes geometric/motif variants and is not a 
 
 ## Development and checks
 
-Requires Node 22.12+ and npm. Install exact dependencies with `npm ci`; keep `package-lock.json` in sync. Use installed source/types and upstream primary documentation when dependency APIs matter.
+Requires Node 24 and npm. Install exact dependencies with `npm ci`; keep `package-lock.json` in sync. Use installed source/types and upstream primary documentation when dependency APIs matter.
 
 ```sh
 npm run build:lib          # required before the first dev run
@@ -86,7 +86,7 @@ Rebuild libraries after editing their source; the dev app consumes built workspa
 
 `npm run build` writes local tarballs, standalone ESM, catalogue/reference data, notices and a manifest into ignored `dist/release/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The release workflow keeps the tested staging directory as an internal Actions artifact for npm byte verification and bootstrap checks. Public packages, including their bundled standalone modules and artwork catalogue, download from npm. GitHub Releases contain change notes, npm links and versioned documentation, with no custom attachments; GitHub supplies its normal tagged source-code archives. The website links to GitHub and `docs/usage.md`. Do not restore the former PoC source ZIP or website package-download tree. Generated avatar/QR SVG and PNG exports remain part of both applications.
 
-Run checks appropriate to the change; see [validation.md](docs/validation.md). A software decode, visual screenshot, package-consumer test and real wallet-camera/print scan are different evidence. Chrome's native barcode detector may be unavailable; report the skip accurately. Physical device and print reliability must be validated separately before release.
+Run checks appropriate to the change; see [validation.md](docs/validation.md). A software decode, visual screenshot, package-consumer test and real wallet-camera/print scan are different evidence. Chrome's native barcode detector may be unavailable; report the skip accurately. Screen scans require separate validation; print reliability is unvalidated in 0.1.
 
 ## Documentation and Git
 

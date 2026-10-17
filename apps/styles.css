@@ -891,9 +891,9 @@ a[aria-disabled='true'] {
   text-align: center;
   color: var(--color-muted);
 }
-#form-status {
-  min-height: 1.5em;
-  margin: 0.5rem 0 0;
+#retry-qr {
+  display: block;
+  margin: 0.5rem auto 0;
 }
 .result-link {
   font-size: 0.9375rem;

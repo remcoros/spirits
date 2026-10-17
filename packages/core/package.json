@@ -1,6 +1,6 @@
 {
   "name": "@remcoros/spirits",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "description": "Experimental, deterministic ghost avatars for Bitcoin Silent Payment addresses.",
@@ -30,7 +30,7 @@
     "@noble/hashes": "2.4.0"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "24.x"
   },
   "repository": {
     "type": "git",

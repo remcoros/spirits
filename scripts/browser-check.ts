@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 import type { QRCode } from 'jsqr';
-import { artwork } from '@remcoros/spirits';
+import { artwork, parseAddress } from '@remcoros/spirits';
 import { fixtureAddress } from '../apps/shared/fixtures.js';
 // Browser-native canvas callbacks are held to reproduce real asynchronous races.
 // This changes only the test page, without test-only paths in application code.
@@ -60,6 +60,11 @@ async function flushFrames(page: Page) {
       new Promise<void>((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
       ),
+  );
+}
+async function qrReady(page: Page) {
+  await page.waitForFunction(() =>
+    document.querySelector('#output-status')?.textContent?.includes('payment QR ready'),
   );
 }
 async function assertReflow(page: Page, label: string) {
@@ -152,8 +157,10 @@ try {
     document.documentElement.style.removeProperty('font-size');
   });
   await page.setViewportSize({ width: 375, height: 812 });
+  await page.locator('#address').fill('tsp1q');
+  assert.equal(await page.locator('#address-error').textContent(), '');
   await page.locator('#address').fill('not-an-address');
-  await page.locator('#create').click();
+  await page.locator('#address').blur();
   await page.waitForFunction(() => Boolean(document.querySelector('#address-error')?.textContent));
   assert.equal(await page.locator('#download-svg').isDisabled(), true);
   assert.ok(
@@ -163,11 +170,11 @@ try {
   );
   assert.ok(!(await page.locator('#address-error').textContent())?.includes('Bech32m'));
   await page.locator('#example').click();
-  await page.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
-  );
+  await qrReady(page);
   assert.ok((await page.locator('#preview-detail').textContent())?.includes('Public example keys'));
-  assert.equal(await page.locator('#result-link').isVisible(), true);
+  await page.setViewportSize({ width: 375, height: 500 });
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.waitForFunction(() => !document.querySelector<HTMLElement>('#result-link')!.hidden);
   const focused = await page.evaluate(() => document.activeElement?.id);
   assert.equal(focused, 'example', 'Generation must not steal keyboard focus');
   await page.locator('#result-link').click();
@@ -175,11 +182,35 @@ try {
     (await page.locator('#output-panel').boundingBox())!.y >= -1,
     'Explicit reveal brings the result into view',
   );
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.id),
+    'result-link',
+    'Revealing output keeps the result link focused',
+  );
   assert.ok(
     (await page.locator('#preview svg title').textContent())?.includes('signature accessory'),
   );
   const address = await page.locator('#address').inputValue();
   assert.equal(address, fixtureAddress('hello-spirit'));
+  const exampleAddresses = new Set([address]);
+  const exampleImages = new Set([await page.locator('#preview').innerHTML()]);
+  for (let i = 1; i < 10; i++) {
+    await page.locator('#example').click();
+    await qrReady(page);
+    const example = await page.locator('#address').inputValue();
+    assert.equal(parseAddress(example).network, 'testnet');
+    exampleAddresses.add(example);
+    exampleImages.add(await page.locator('#preview').innerHTML());
+    assert.ok(
+      (await page.locator('#preview-detail').textContent())?.includes('Public example keys'),
+    );
+  }
+  assert.equal(exampleAddresses.size, 10);
+  assert.equal(exampleImages.size, 10);
+  await page.locator('#example').click();
+  await qrReady(page);
+  assert.equal(await page.locator('#address').inputValue(), address, 'Examples wrap after ten');
+  await page.setViewportSize({ width: 375, height: 812 });
   await page.locator('#mode-qr').click();
   let pending = page.waitForEvent('download');
   await page.locator('#download-png').click();
@@ -252,26 +283,27 @@ try {
     assert.equal(nativeDecoded, true);
   }
   // Editing the input must invalidate old exports immediately.
-  await page.locator('#address').fill(fixtureAddress('new-address'));
+  await page.locator('#address').fill(fixtureAddress('new-address').slice(0, -1));
   assert.equal(await page.locator('#download-svg').isDisabled(), true);
   assert.equal(await page.locator('#preview svg').count(), 0);
   assert.equal(
     await page.locator('#preview').getAttribute('aria-label'),
-    'No SPirit generated for the current input',
+    'No current image for this input',
   );
-  await page.locator('#create').click();
-  await page.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
-  );
+  await page.locator('#address').fill(fixtureAddress('new-address'));
+  await qrReady(page);
   assert.equal(await page.locator('#address').inputValue(), fixtureAddress('new-address'));
   assert.ok(
     !(await page.locator('#preview-detail').textContent())?.includes('example keys'),
     'User-provided tsp is not labeled as public fixture keys',
   );
-  await page.locator('#address').fill(fixtureAddress('hello-spirit'));
-  await page.locator('#create').click();
-  await page.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
+  const pastedExample = ' ' + fixtureAddress('hello-spirit').toUpperCase() + ' ';
+  await page.locator('#address').fill(pastedExample);
+  await qrReady(page);
+  assert.equal(
+    await page.locator('#address').inputValue(),
+    pastedExample,
+    'Input text is preserved',
   );
   assert.ok(
     (await page.locator('#preview-detail').textContent())?.includes('Public example keys'),
@@ -369,30 +401,37 @@ try {
   race.on('request', (r) => requests.push(r.url()));
   await race.goto(base);
   await race.locator('#example').click();
-  await race.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
-  );
+  await qrReady(race);
   await holdRasters(race);
   await race.locator('#example').click();
   await rasterCount(race, 1);
+  assert.equal(await race.locator('#preview svg').count(), 1, 'Avatar appears before QR checking');
+  assert.equal(await race.locator('#download-svg').isDisabled(), false);
+  await race.locator('#mode-qr').click();
   await race.locator('#address').fill(fixtureAddress('newer-generation'));
-  await race.locator('#create').click();
   await rasterCount(race, 2);
   await releaseRaster(race, 0);
   await race.waitForFunction(
     () => (window as unknown as { rasterGate: RasterGate }).rasterGate.completed === 1,
   );
   assert.equal(
-    await race.locator('#create').getAttribute('aria-busy'),
+    await race.locator('#mode-qr').getAttribute('aria-busy'),
     'true',
     'Old generation cannot clear a newer busy state',
   );
   assert.equal(await race.locator('#preview svg').count(), 0);
   assert.equal(await race.locator('#download-svg').isDisabled(), true);
-  await releaseRaster(race, 1);
-  await race.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
-  );
+  assert.equal(await race.locator('#mode-qr').getAttribute('aria-pressed'), 'true');
+  await releaseRaster(race, 1, true);
+  await race.locator('#retry-qr').waitFor();
+  assert.equal(await race.locator('#address-error').textContent(), '');
+  await race.locator('#mode-spirit').click();
+  assert.equal(await race.locator('#preview svg').count(), 1, 'QR failure keeps the avatar');
+  assert.equal(await race.locator('#download-svg').isDisabled(), false);
+  await race.locator('#retry-qr').click();
+  await rasterCount(race, 3);
+  await releaseRaster(race, 2);
+  await qrReady(race);
   await race.evaluate(() => (window as unknown as { rasterGate: RasterGate }).rasterGate.restore());
   let raceDownloads = 0;
   race.on('download', () => raceDownloads++);
@@ -401,14 +440,11 @@ try {
     await race.locator('#download-png').click();
     await rasterCount(race, 1);
     await race.locator('#address').fill(fixtureAddress(`new-png-${failOld}`));
-    await race.locator('#create').click();
     await rasterCount(race, 2);
-    await releaseRaster(race, 1);
-    await race.waitForFunction(() =>
-      document.querySelector('#output-status')?.textContent?.includes('decoded successfully'),
-    );
     await race.locator('#download-png').click();
     await rasterCount(race, 3);
+    await releaseRaster(race, 1);
+    await qrReady(race);
     const before = raceDownloads;
     await releaseRaster(race, 0, failOld);
     await flushFrames(race);
@@ -420,7 +456,7 @@ try {
     );
     assert.equal(await race.locator('#download-png').isDisabled(), true);
     assert.ok(
-      (await race.locator('#output-status').textContent())?.includes('decoded successfully'),
+      (await race.locator('#output-status').textContent())?.includes('payment QR ready'),
       'Stale success/failure cannot replace current status',
     );
     const nextDownload = race.waitForEvent('download');
@@ -493,6 +529,9 @@ try {
     documentationLinks: true,
     pocArchiveLinks: false,
     invalidInput: true,
+    automaticGeneration: true,
+    rotatingTestnetExamples: exampleAddresses.size,
+    qrFailureIsolation: true,
     staleExportInvalidation: true,
     delayedPngOwnership: true,
     overlappingDecodeOwnership: true,

@@ -55,19 +55,15 @@
               aria-describedby="address-hint address-error"
             ></textarea>
             <p id="address-hint" class="hint">
-              Paste the complete public address beginning sp1 or tsp1. Everything stays in this
-              browser.
+              Paste an sp1 or tsp1 address. Your SPirit appears automatically, in this browser.
             </p>
             <p id="address-error" class="error" role="alert"></p>
             <div class="form-actions">
-              <button class="primary" type="submit" id="create">
-                Meet your SPirit <span aria-hidden="true">↗</span></button
-              ><button type="button" class="text-button" id="example">Try an example</button>
+              <button type="button" class="primary" id="example">Try an example</button>
+              <a class="result-link" id="result-link" href="#output-panel" hidden
+                >View your SPirit <span aria-hidden="true">↓</span></a
+              >
             </div>
-            <p id="form-status" class="hint" role="status" aria-live="polite"></p>
-            <a class="result-link" id="result-link" href="#output-panel" hidden
-              >View your SPirit and downloads</a
-            >
           </form>
           <p class="privacy-note">No account. No uploads. No address lookup.</p>
         </div>
@@ -99,6 +95,7 @@
           <p class="output-status" id="output-status" role="status" aria-live="polite">
             An example ghost is shown above.
           </p>
+          <button type="button" class="text-button" id="retry-qr" hidden>Retry QR</button>
         </div>
       </section>
       <section class="meet-section" id="about">

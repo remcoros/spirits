@@ -6,7 +6,7 @@ Experimental deterministic ghost avatars for Bitcoin Silent Payments. TypeScript
 
 ## Run locally
 
-Requires Node 22.12+ and npm.
+Requires Node 24 and npm.
 
 ```sh
 npm ci
@@ -40,14 +40,14 @@ The browser check uses `/usr/bin/google-chrome` by default; set `SPIRITS_BROWSER
 - `docs`: architecture, byte-level algorithm, artwork, QR generation and validation notes. Start at [the documentation index](docs/README.md).
 - `spec`: machine-readable test vectors and their provenance for independent implementations.
 
-The development lab creates **public, disposable fixture keys**. Never receive real funds to generated addresses. The public generator accepts existing public addresses; its example uses `tsp` test-network fixtures.
+The development lab creates **public, disposable fixture keys**. Never receive real funds to generated addresses. The public generator accepts existing public addresses and cycles through ten `tsp` test-network examples.
 
 ## Integrate
 
-Start with the [usage guide](docs/usage.md) for npm installation, extracting standalone modules from npm tarballs, browser PNG conversion, and integration contracts. The first beta, [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1), is published on npm's `next` channel. The live generator is at [spirits.boo](https://spirits.boo/).
+Start with the [usage guide](docs/usage.md) for npm installation, standalone modules and browser PNG conversion. Version `0.1.0` retains the experimental `spirits-v0` scheme. The live generator is at [spirits.boo](https://spirits.boo/).
 
 ```sh
-npm install @remcoros/spirits@next @remcoros/spirits-qr@next
+npm install @remcoros/spirits@0.1.0 @remcoros/spirits-qr@0.1.0
 ```
 
 ```ts
@@ -60,7 +60,7 @@ const qr = createSpiritQr(address); // SVG, complete address, version and layout
 const plainQr = createSpiritQr(address, { spirit: false });
 ```
 
-The core has no DOM, canvas, network or filesystem dependency and works in Node and modern browsers. The npm tarballs include standalone `spirits-core.mjs` and `spirits-qr.mjs` files with dependencies and artwork bundled; the [usage guide](docs/usage.md#extract-standalone-modules-and-artwork-from-npm) shows how to extract them and retain their notices. ESM package imports allow applications to share dependencies and tree-shake unused functions.
+The core has no DOM, canvas, network or filesystem dependency and works in Node 24 and modern browsers. The npm tarballs include standalone `spirits-core.mjs` and `spirits-qr.mjs` files with dependencies and artwork bundled; the [usage guide](docs/usage.md#extract-standalone-modules-and-artwork-from-npm) shows how to extract them and retain their notices. ESM package imports allow applications to share dependencies and tree-shake unused functions.
 
 ```ts
 // Optional browser-only raster conversion:
@@ -78,7 +78,7 @@ The catalogue has 384 entries including palettes and label accents. It includes 
 
 QRs contain the entire address, not a redirect. The extension selects error correction H, four-module margins, integer pixel scaling and a circular white badge clear of structural markers. A thin dark outline and tighter framing make the full ghost and its permanent accessories easier to see without changing the overall QR dimensions. Default decorated codes use version 14; plain ones use version 10. Small codes target character recognition; inspect the label's badge and glyph at a larger size. Bigger symbols still need sufficient screen or print size.
 
-Tests rasterise and decode final decorated SVGs across characters, labels, networks and sizes. The public page performs an additional browser-side jsQR check. The browser suite also uses Chrome's independent native barcode decoder when available. These checks do not establish universal wallet-camera or printed-code reliability. Physical camera/print validation remains a separate acceptance step.
+Tests rasterise and decode final decorated SVGs across characters, labels, networks and sizes. The public page checks each QR locally before enabling its display and downloads; avatar downloads are available immediately. The browser suite also uses Chrome's native barcode decoder when available. Check screen use separately with your intended wallet; print reliability is unvalidated in 0.1.
 
 ## Build and distribution
 

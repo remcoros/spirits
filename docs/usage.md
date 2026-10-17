@@ -2,7 +2,7 @@
 
 SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public addresses. The core includes all artwork and produces self-contained SVG. The separate QR extension embeds the matching character in a standard payment QR.
 
-**The first beta is [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1).** Artwork and mappings in the experimental `spirits-v0` visual scheme may change. The live website follows `main` and can contain changes that are not yet in an npm release. For reproducible integration, install a specific npm package version and use the matching GitHub tag for reference documentation and test vectors.
+Requires Node 24 or a modern browser. The `spirits-v0` artwork and mappings remain experimental in `0.1.0`. Pin the package version and use its matching GitHub tag for reproducible output. The live website follows `main`.
 
 ## Find packages and release notes
 
@@ -13,25 +13,23 @@ SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public a
 
 Public packages download from npm. Their tarballs contain the standalone modules, and the core tarball includes the portable artwork catalogue. GitHub Releases have no custom file attachments. Generated avatar and QR image downloads remain available in the website.
 
-This guide corrects the distribution instructions in the immutable initial beta tag. Use this [current guide](https://github.com/remcoros/spirits/blob/main/docs/usage.md) for package access, and the [tagged reference](https://github.com/remcoros/spirits/tree/v0.1.0-beta.1) for that version's implementation, algorithm and test vectors.
-
 ## Install from npm
 
-Beta releases use the `next` channel:
+Install the latest release:
 
 ```sh
-npm install @remcoros/spirits@next @remcoros/spirits-qr@next
+npm install @remcoros/spirits @remcoros/spirits-qr
 ```
 
-To pin the first beta exactly:
+To pin version `0.1.0`:
 
 ```sh
-npm install @remcoros/spirits@0.1.0-beta.1 @remcoros/spirits-qr@0.1.0-beta.1
+npm install @remcoros/spirits@0.1.0 @remcoros/spirits-qr@0.1.0
 ```
 
 The QR package depends on the same exact core version. Keep both versions together when upgrading. Install only the core if you do not need payment QRs.
 
-The initial beta also owns `latest`, so an install without a version or channel currently selects that beta. Use an exact version when you need reproducible output.
+Prereleases use the `next` channel. Normal releases use `latest`.
 
 ```ts
 import { createSpirit, deriveSpirit, renderSpirit, parseAddress } from '@remcoros/spirits';
@@ -66,17 +64,17 @@ This adapter requires browser APIs. PNG bytes can differ between rasterisers eve
 
 ## Extract standalone modules and artwork from npm
 
-Use `npm pack` when you want a standalone ES module or the portable catalogue without installing the packages into an application. These commands download the exact first-beta tarballs and extract each complete package into a separate, newly created temporary directory:
+Use `npm pack` when you want a standalone ES module or the portable catalogue without installing the packages into an application. These commands download the exact `0.1.0` tarballs and extract each complete package into a separate, newly created temporary directory:
 
 ```sh
 spirits_extract_dir="$(mktemp -d)"
 mkdir "$spirits_extract_dir/core" "$spirits_extract_dir/qr"
 
-npm pack @remcoros/spirits@0.1.0-beta.1 --ignore-scripts --pack-destination "$spirits_extract_dir/core"
-npm pack @remcoros/spirits-qr@0.1.0-beta.1 --ignore-scripts --pack-destination "$spirits_extract_dir/qr"
+npm pack @remcoros/spirits@0.1.0 --ignore-scripts --pack-destination "$spirits_extract_dir/core"
+npm pack @remcoros/spirits-qr@0.1.0 --ignore-scripts --pack-destination "$spirits_extract_dir/qr"
 
-tar -xzf "$spirits_extract_dir/core/remcoros-spirits-0.1.0-beta.1.tgz" -C "$spirits_extract_dir/core"
-tar -xzf "$spirits_extract_dir/qr/remcoros-spirits-qr-0.1.0-beta.1.tgz" -C "$spirits_extract_dir/qr"
+tar -xzf "$spirits_extract_dir/core/remcoros-spirits-0.1.0.tgz" -C "$spirits_extract_dir/core"
+tar -xzf "$spirits_extract_dir/qr/remcoros-spirits-qr-0.1.0.tgz" -C "$spirits_extract_dir/qr"
 
 printf 'Extracted packages: %s\n' "$spirits_extract_dir"
 ```
@@ -103,7 +101,7 @@ const qr = createSpiritQr(address);
 
 Each module is self-contained; importing both includes two copies of the core code. Normal npm package imports allow a bundler to share dependencies and remove unused functions. The package export maps expose the documented package APIs, not `dist/` or `assets/` subpaths: the extracted files above are local files, not package subpath imports. Use `@remcoros/spirits/browser` for the optional PNG adapter.
 
-For independent implementations, match the extracted catalogue to the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0-beta.1/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0-beta.1/spec/test-vectors.json). Those reference files remain in the tagged source tree. The downloaded `.tgz` files can also be installed directly with `npm install /path/to/package.tgz`; install matching core and QR tarballs together when using both.
+For independent implementations, match the extracted catalogue to the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0/spec/test-vectors.json). Those reference files remain in the tagged source tree. The downloaded `.tgz` files can also be installed directly with `npm install /path/to/package.tgz`; install matching core and QR tarballs together when using both.
 
 ## Address and appearance contracts
 

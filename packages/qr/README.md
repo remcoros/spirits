@@ -1,6 +1,6 @@
 # @remcoros/spirits-qr
 
-Experimental standard QR SVGs with the address's SPirit in the centre. Depends on `@remcoros/spirits` at the same POC package version.
+Experimental standard QR SVGs with the address's SPirit in the centre. Supports Node 24 and modern browsers. Depends on `@remcoros/spirits` at the same POC package version.
 
 ```ts
 import { createSpiritQr } from '@remcoros/spirits-qr';
@@ -14,6 +14,6 @@ The payload is the complete canonical v0 Silent Payment address, with no URL or 
 
 At a displayed QR width of roughly 250–310px, use the ghost for character recognition. Inspect a larger standalone Spirit to compare its fine label badge and glyph; resemblance does not prove ownership or label legitimacy.
 
-The output is a standard QR with artwork obscuring data modules. Automated decoder tests and actual intended camera/print testing are required; a successful software decode is not a guarantee for all readers or print sizes. The library has no DOM dependency. Use `@remcoros/spirits/browser` for optional browser PNG conversion.
+The output is a standard QR with artwork obscuring data modules. Software decoding does not guarantee compatibility with every reader; check screen use with your intended wallet. Print reliability is unvalidated in 0.1. The library has no DOM dependency. Use `@remcoros/spirits/browser` for optional browser PNG conversion.
 
 Code: MIT. Original SPirit art: CC0. The pinned upstream Project Nayuki MIT encoder and adaptation are documented in `THIRD-PARTY.md`.

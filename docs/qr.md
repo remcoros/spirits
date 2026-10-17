@@ -22,7 +22,7 @@ The avatar deliberately obscures encoded data modules. Structural clearance is n
 
 The image tests rasterise the final composed SVG and decode it with jsQR across characters, labels, both prefixes and integer scales 2/3/5/8. They also resample final output to 250px and 310px and apply mild blur before decoding. The structural tests compare both geometry helpers with the protected cells recorded from the pinned encoder for every QR version. The browser application separately rasterises and decodes its final export before enabling downloads. The browser suite checks downloaded PNGs and uses Chrome's native barcode detector when the environment exposes it; an unavailable native decoder must be reported as skipped.
 
-Neither these checks nor a successful developer-machine scan proves universal wallet-camera compatibility. Before public release, scan actual screen and printed exports using the intended wallets, at realistic sizes, angles and lighting. Record those results separately from software-decoder proof.
+Software decoding does not establish universal wallet-camera compatibility. Check screen use with the intended reader and displayed size. Print reliability is unvalidated in 0.1.
 
 ## Encoder provenance
 

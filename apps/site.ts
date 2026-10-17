@@ -2,124 +2,182 @@ import { SpiritAddressError } from '@remcoros/spirits';
 import { createSpiritQr } from '@remcoros/spirits-qr';
 import { fixtureAddress } from './shared/fixtures.js';
 import { $, addressRecovery, describedSpirit, download, svgToPng, verifyQr } from './shared/ui.js';
-const sample = fixtureAddress('hello-spirit');
+
+const examples = Array.from({ length: 10 }, (_, i) =>
+  fixtureAddress(i === 0 ? 'hello-spirit' : `example-${i}`, 1, 'testnet'),
+);
+let exampleIndex = 0;
 $('brand-ghost').innerHTML = describedSpirit(fixtureAddress('brand'), 64).svg;
-$('preview').innerHTML = describedSpirit(sample, 512).svg;
-$('mobile-ghost').innerHTML = describedSpirit(sample, 128).svg;
+$('preview').innerHTML = describedSpirit(examples[0], 512).svg;
+$('mobile-ghost').innerHTML = describedSpirit(examples[0], 128).svg;
 $('parade').innerHTML = Array.from(
   { length: 8 },
   (_, i) => describedSpirit(fixtureAddress(`parade-${i}`), 160).svg,
 ).join('');
-const input = $<HTMLTextAreaElement>('address'),
-  form = $<HTMLFormElement>('generator-form');
-const exportKinds = ['svg', 'png'] as const;
-let result: { spirit: string; qr: string; address: string; filename: string } | undefined;
-let mode: 'spirit' | 'qr' = 'spirit',
-  generation = 0;
 
+const input = $<HTMLTextAreaElement>('address');
+const exportKinds = ['svg', 'png'] as const;
+type Result = {
+  spirit: string;
+  qr?: string;
+  qrState: 'checking' | 'ready' | 'error';
+  address: string;
+  filename: string;
+};
+let result: Result | undefined;
+let mode: 'spirit' | 'qr' = 'spirit',
+  generation = 0,
+  qrSerial = 0;
+let validationError: unknown;
+let errorTimer: ReturnType<typeof setTimeout> | undefined;
 const exportSerial = { svg: 0, png: 0 };
+
+function updateResultLink() {
+  const link = $('result-link');
+  link.hidden =
+    !result ||
+    ($('preview').getBoundingClientRect().top < innerHeight && document.activeElement !== link);
+}
+new IntersectionObserver(updateResultLink).observe($('preview'));
+window.addEventListener('resize', updateResultLink);
+$('result-link').addEventListener('blur', updateResultLink);
+
+function updateDownloads() {
+  const ready = result && (mode === 'spirit' || result.qrState === 'ready');
+  for (const kind of exportKinds) {
+    const button = $<HTMLButtonElement>(`download-${kind}`);
+    button.disabled = !ready || button.getAttribute('aria-busy') === 'true';
+  }
+}
+
 function paint() {
-  if (!result) return;
-  $('preview').innerHTML = result[mode];
+  const svg = result?.[mode];
   $('preview').classList.toggle('qr', mode === 'qr');
-  $('preview').setAttribute(
-    'aria-label',
-    mode === 'qr'
-      ? 'Payment QR for the current validated address'
-      : 'SPirit for the current validated address',
-  );
+  $('preview').setAttribute('aria-busy', String(mode === 'qr' && result?.qrState === 'checking'));
+  if (svg) {
+    $('preview').innerHTML = svg;
+    $('preview').setAttribute(
+      'aria-label',
+      mode === 'qr'
+        ? 'Payment QR for the current validated address'
+        : 'SPirit for the current validated address',
+    );
+  } else {
+    const waiting = document.createElement('p');
+    waiting.className = 'empty-preview';
+    waiting.textContent = !result
+      ? 'Paste an address to meet your SPirit.'
+      : result.qrState === 'error'
+        ? 'Payment QR unavailable.'
+        : 'Preparing payment QR…';
+    $('preview').replaceChildren(waiting);
+    $('preview').setAttribute('aria-label', 'No current image for this input');
+  }
   $('mode-spirit').setAttribute('aria-pressed', String(mode === 'spirit'));
   $('mode-qr').setAttribute('aria-pressed', String(mode === 'qr'));
+  $<HTMLButtonElement>('mode-qr').disabled = !result;
+  $('mode-qr').setAttribute('aria-busy', String(result?.qrState === 'checking'));
+  $('retry-qr').hidden = result?.qrState !== 'error';
+  $('output-status').textContent = !result
+    ? 'Downloads appear when your address is ready.'
+    : result.qrState === 'checking'
+      ? 'SPirit ready. Checking payment QR…'
+      : result.qrState === 'error'
+        ? 'SPirit ready. The QR could not be checked.'
+        : 'SPirit and payment QR ready.';
+  updateDownloads();
+  updateResultLink();
 }
-function reset() {
+
+function invalidate() {
   generation++;
+  qrSerial++;
+  clearTimeout(errorTimer);
+  validationError = undefined;
   result = undefined;
   for (const kind of exportKinds) {
     exportSerial[kind]++;
-    const button = $<HTMLButtonElement>(`download-${kind}`);
-    button.disabled = true;
-    button.removeAttribute('aria-busy');
+    $(`download-${kind}`).removeAttribute('aria-busy');
   }
-  $<HTMLButtonElement>('mode-qr').disabled = true;
-  $('output-status').textContent = 'Generate a SPirit for this address to enable downloads.';
   $('address-error').textContent = '';
   input.removeAttribute('aria-invalid');
-  $('create').removeAttribute('aria-busy');
-  $<HTMLButtonElement>('create').disabled = false;
-  $('output-panel').setAttribute('aria-busy', 'false');
-  $('preview').replaceChildren();
-  const waiting = document.createElement('p');
-  waiting.className = 'empty-preview';
-  waiting.textContent = 'Your SPirit will appear here.';
-  $('preview').append(waiting);
-  $('preview').classList.remove('qr');
-  $('preview').setAttribute('aria-label', 'No SPirit generated for the current input');
-  mode = 'spirit';
-  $('mode-spirit').setAttribute('aria-pressed', 'true');
-  $('mode-qr').setAttribute('aria-pressed', 'false');
   $('preview-title').textContent = 'Yours is waiting.';
-  $('preview-detail').textContent = 'Generate again after changing the address.';
+  $('preview-detail').textContent = 'Your SPirit appears automatically.';
   $('network-tag').textContent = 'Awaiting address';
-  $('result-link').hidden = true;
-  $('form-status').textContent = '';
+  paint();
 }
-input.addEventListener('input', () => {
-  reset();
-});
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  reset();
-  const token = generation,
-    isExample = input.value.trim().toLowerCase() === sample;
-  $('output-panel').setAttribute('aria-busy', 'true');
-  $<HTMLButtonElement>('create').disabled = true;
-  $('create').setAttribute('aria-busy', 'true');
-  $('form-status').textContent = 'Checking your SPirit and payment QR…';
+
+function showAddressError() {
+  if (!validationError) return;
+  $('address-error').textContent = addressRecovery(validationError, input.value);
+  if (validationError instanceof SpiritAddressError) input.setAttribute('aria-invalid', 'true');
+}
+
+async function checkQr(current: Result) {
+  const operation = ++qrSerial;
+  const owns = () => result === current && qrSerial === operation;
+  current.qrState = 'checking';
+  current.qr = undefined;
+  paint();
   try {
-    const spirit = describedSpirit(input.value, 1024),
-      qr = createSpiritQr(input.value);
-    $('output-status').textContent = 'Checking the finished QR…';
-    const verified = await verifyQr(qr.svg, qr.address);
-    if (token !== generation) return;
+    const qr = createSpiritQr(current.address);
+    const verified = await verifyQr(qr.svg, current.address);
+    if (!owns()) return;
     if (!verified) throw new Error('QR decode failed');
-    input.value = qr.address;
-    result = {
-      spirit: spirit.svg,
-      qr: qr.svg,
-      address: qr.address,
-      filename: `spirit-${spirit.recipe.identity.slice(0, 8)}-${spirit.recipe.variationId.slice(0, 8)}`,
-    };
-    for (const kind of exportKinds) $<HTMLButtonElement>(`download-${kind}`).disabled = false;
-    $<HTMLButtonElement>('mode-qr').disabled = false;
-    $('network-tag').textContent =
-      spirit.recipe.network === 'mainnet' ? 'Bitcoin mainnet' : 'Test network';
-    $('preview-title').textContent = 'Meet your SPirit.';
-    $('preview-detail').textContent = isExample
-      ? 'Public example keys. Explore the artwork; never receive funds to this address.'
-      : spirit.recipe.network === 'mainnet'
-        ? 'A character made from your Silent Payment address.'
-        : 'Your test-network address. The tsp prefix does not identify a particular test chain.';
-    $('output-status').textContent = 'Finished QR decoded successfully in this browser.';
-    $('form-status').textContent = 'Your SPirit and payment QR are ready below.';
-    $('result-link').hidden = false;
-    paint();
-  } catch (error) {
-    if (token !== generation) return;
-    $('address-error').textContent = addressRecovery(error, input.value);
-    if (error instanceof SpiritAddressError) input.setAttribute('aria-invalid', 'true');
-    $('output-status').textContent = 'No exports are ready. Check the message beside the address.';
-    $('form-status').textContent = '';
+    current.qr = qr.svg;
+    current.qrState = 'ready';
+  } catch {
+    if (!owns()) return;
+    current.qrState = 'error';
   } finally {
-    if (token === generation) {
-      $('output-panel').setAttribute('aria-busy', 'false');
-      $<HTMLButtonElement>('create').disabled = false;
-      $('create').removeAttribute('aria-busy');
-    }
+    if (owns()) paint();
   }
+}
+
+function generate(showErrors = false) {
+  invalidate();
+  if (!input.value.trim()) return;
+  let spirit: ReturnType<typeof describedSpirit>;
+  try {
+    spirit = describedSpirit(input.value, 1024);
+  } catch (error) {
+    validationError = error;
+    if (showErrors) showAddressError();
+    else if (input.value.trim().length >= 116) errorTimer = setTimeout(showAddressError, 400);
+    return;
+  }
+  result = {
+    spirit: spirit.svg,
+    qrState: 'checking',
+    address: spirit.recipe.address,
+    filename: `spirit-${spirit.recipe.identity.slice(0, 8)}-${spirit.recipe.variationId.slice(0, 8)}`,
+  };
+  $('network-tag').textContent =
+    spirit.recipe.network === 'mainnet' ? 'Bitcoin mainnet' : 'Test network';
+  $('preview-title').textContent = 'Meet your SPirit.';
+  $('preview-detail').textContent = examples.includes(spirit.recipe.address)
+    ? 'Public example keys. Never receive funds to this address.'
+    : spirit.recipe.network === 'mainnet'
+      ? 'A character made from your Silent Payment address.'
+      : 'Your test-network address. The tsp prefix does not identify a particular test chain.';
+  void checkQr(result);
+}
+
+input.addEventListener('input', (event) => {
+  generate(event instanceof InputEvent && event.inputType === 'insertFromPaste');
+});
+input.addEventListener('blur', showAddressError);
+$('generator-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  showAddressError();
 });
 $('example').addEventListener('click', () => {
-  input.value = sample;
-  form.requestSubmit();
+  input.value = examples[exampleIndex];
+  exampleIndex = (exampleIndex + 1) % examples.length;
+  generate();
+});
+$('retry-qr').addEventListener('click', () => {
+  if (result) void checkQr(result);
 });
 $('result-link').addEventListener('click', (event) => {
   event.preventDefault();
@@ -139,15 +197,17 @@ for (const kind of exportKinds)
     const current = result,
       currentMode = mode,
       token = generation,
-      operation = ++exportSerial[kind];
+      operation = ++exportSerial[kind],
+      svg = current[currentMode];
+    if (!svg) return;
     const button = $<HTMLButtonElement>(`download-${kind}`);
     const owns = () =>
       generation === token && result === current && exportSerial[kind] === operation;
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
     try {
-      const svg = current[currentMode],
-        blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPng(svg);
+      const blob =
+        kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPng(svg);
       if (!owns()) return;
       download(blob, `${current.filename}${currentMode === 'qr' ? '-qr' : ''}.${kind}`);
       $('output-status').textContent =
@@ -156,8 +216,8 @@ for (const kind of exportKinds)
       if (owns()) $('output-status').textContent = 'The download failed. Please try again.';
     } finally {
       if (owns()) {
-        button.disabled = false;
         button.removeAttribute('aria-busy');
+        updateDownloads();
       }
     }
   });

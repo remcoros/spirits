@@ -1,6 +1,6 @@
 # @remcoros/spirits
 
-Experimental v0 deterministic ghost avatars for BIP352 public addresses. No private keys, network, filesystem, DOM or canvas are required for the core.
+Experimental v0 deterministic ghost avatars for BIP352 public addresses. Supports Node 24 and modern browsers. No private keys, network, filesystem, DOM or canvas are required for the core.
 
 ```ts
 import { createSpirit, deriveSpirit, renderSpirit, parseAddress, artwork } from '@remcoros/spirits';

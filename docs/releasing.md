@@ -4,6 +4,8 @@ The public generator follows `main`. npm packages come only from a reviewed `v` 
 
 The first beta, [`0.1.0-beta.1`](https://github.com/remcoros/spirits/releases/tag/v0.1.0-beta.1), is published on npm and has a GitHub release. It was bootstrapped through manually approved npm stages; OIDC publishing must still be validated by a subsequent genuine release. Its immutable source tag retains the original distribution instructions. Release notes link to the [corrected current usage guide](https://github.com/remcoros/spirits/blob/main/docs/usage.md) for npm access and the [tagged reference](https://github.com/remcoros/spirits/tree/v0.1.0-beta.1) for the released implementation and reference data.
 
+Version `0.1.0` is a normal package release; its `spirits-v0` artwork and mappings remain experimental.
+
 ## Checks and artifacts
 
 `.github/workflows/release.yml` accepts a `vMAJOR.MINOR.PATCH` tag with optional SemVer prerelease identifiers. It rejects leading zeroes, build metadata, a dirty tree, a checkout different from the tag, a tag outside fetched `origin/main`, mismatched package/lockfile versions, and incorrect package repository/publication metadata.
@@ -81,8 +83,8 @@ After a failure, inspect the failed job and its registry/release state. Use **Re
 After publication, test installation by exact version and by its intended channel:
 
 ```sh
-npm install @remcoros/spirits@0.1.0-beta.1 @remcoros/spirits-qr@0.1.0-beta.1
-npm install @remcoros/spirits@next @remcoros/spirits-qr@next
+npm install @remcoros/spirits@0.1.0 @remcoros/spirits-qr@0.1.0
+npm install @remcoros/spirits@latest @remcoros/spirits-qr@latest
 ```
 
 Use `latest` for stable releases. The [usage guide](usage.md#extract-standalone-modules-and-artwork-from-npm) shows how to download exact npm tarballs and extract the bundled standalone modules and core artwork catalogue while retaining their notices. Algorithm notes and reference vectors remain in the tagged source tree. Registry availability, GitHub release notes, Pages deployment, automated QR decoding, and physical camera/print acceptance are distinct evidence. Experimental artwork and software decoder success do not establish universal wallet-camera reliability.

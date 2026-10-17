@@ -4,6 +4,7 @@ These documents describe the current SPirits implementation and the decisions be
 
 - [Usage](usage.md): npm packages, extracting standalone modules and artwork, integration and browser exports.
 - [Releasing](releasing.md): initial npm setup, trusted publishing and tagged releases.
+- [0.1.0 release notes](releases/0.1.0.md).
 - [Hosting](hosting.md): GitHub Pages deployment and the custom domain.
 - [Architecture](architecture.md): package boundaries, browser adapters, application flows and distribution.
 - [SPirit generation algorithm](algorithm.md): accepted addresses, canonicalisation, domain strings, byte ordering and trait selection.

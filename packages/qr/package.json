@@ -1,6 +1,6 @@
 {
   "name": "@remcoros/spirits-qr",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "description": "Standard Silent Payment QR codes with a deterministic SPirit in the centre.",
@@ -20,10 +20,10 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "@remcoros/spirits": "0.1.0-beta.1"
+    "@remcoros/spirits": "0.1.0"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "24.x"
   },
   "repository": {
     "type": "git",

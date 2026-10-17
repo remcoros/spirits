@@ -17,7 +17,7 @@ Run `npm run build` before package/browser checks. The browser script creates an
 
 Reports and screenshots are in ignored `artifacts/`. Their presence is not proof that they describe the current code: inspect timestamps and session handoffs, or rerun the relevant command. The native Chrome barcode decoder is optional and availability is explicitly reported. jsQR remains independent of the Nayuki encoder even when native decoding is unavailable.
 
-The application itself also decodes finished QR exports. Keep operation ownership and immediate output invalidation: changing an address while a decode or PNG conversion is pending must not expose or download the previous input as the new result. Apply ownership to final cleanup and status writes as well as successful results. Invalid fixture controls must invalidate previous lab output before attempting generation.
+The public page generates automatically. Avatar exports are independent of the background check that gates QR display and exports. Keep operation ownership and immediate output invalidation: changing an address while a decode or PNG conversion is pending must not expose or download the previous input as the new result. Apply ownership to final cleanup and status writes as well as successful results. Invalid fixture controls must invalidate previous lab output before attempting generation.
 
 QR image checks include public fixtures covering every body, head feature, body marking and permanent item in final compositions at integer scales 2 and 3. Separate containment checks cover every body/hem pairing and each remaining feature against the circular frame. This checks the actual larger artwork without clipping it to make a test pass.
 
@@ -35,4 +35,4 @@ For a larger candidate pool, run `npm run audit:visual -- 50000 artifacts/my-rev
 
 Review selected close pairs at actual 32px and 64px, without relying on label accents, then inspect final composed QRs. Use the [two-memorable-differences art heuristic](artwork.md#composition-checks), and include delayed recognition with similar distractors when organising participant review. Candidate scores, exact pixel differences and an expert visual inspection do not establish a human confusion rate.
 
-Before a stable public release, review broader human recognition/perceptual similarity, colour-blind/monochrome appearance, real wallet cameras and print sizes. Freeze the v1 art/mapping contract only after that review. No publication, deployment or physical-device result is implied by a local build.
+Version 0.1 retains experimental artwork and unmeasured recognition goals. Review the final candidate visually and check screen use separately from software decoding; print reliability is unvalidated. A future v1 visual freeze needs its own acceptance review. Local checks do not imply publication, deployment or physical-device results.

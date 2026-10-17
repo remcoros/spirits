@@ -4,6 +4,20 @@ The public repository is [`remcoros/spirits`](https://github.com/remcoros/spirit
 
 Before a custom domain is configured, the project URL is `https://remcoros.github.io/spirits/`, with the workshop at `/spirits/lab/`. The canonical address is `https://spirits.boo/`, with `www.spirits.boo` redirecting to it. Register and verify a domain before connecting it. Vite keeps `base: './'`, so the same build supports the project subdirectory and a custom-domain root without a hard-coded domain or repository path.
 
+Both pages declare the same local site icons: a scalable SVG, 16/32px PNG fallbacks,
+a 16/32/48px ICO, and a 180px Apple touch icon. `site.webmanifest` supplies 192/512px
+icons for browser shortcuts, including an opaque maskable Android icon. Vite
+rewrites the HTML's public asset links for each page's depth; the manifest's URLs
+resolve relative to the manifest itself. This
+keeps icons working in development, on the project URL and at a custom-domain
+root, including direct visits to `/lab/`. The icon has its own dark background so
+it stays visible in light and dark browser chrome. It requires no JavaScript or
+remote asset requests.
+
+`public/favicon.svg` is the original CC0 site mark, separate from the versioned
+avatar catalogue. After editing it, run `npm run build:icons` to regenerate the
+committed raster files and ICO. Ordinary site builds copy these assets unchanged.
+
 ## Enable the project site
 
 1. Publish the repository and workflows to the intended `main` branch when ready.

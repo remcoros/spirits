@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Original SPirits site artwork. SPDX-License-Identifier: CC0-1.0 -->
+  <rect width="64" height="64" rx="14" fill="#192b23" />
+  <path
+    d="M 14 49 C 14 43 17 36 17 29 C 17 18 23 11 32 11 C 42 11 48 18 48 29 C 48 36 51 43 51 49 Q 51 55 46 52 L 40 48 L 35 53 Q 32 56 29 53 L 24 48 L 19 52 Q 14 55 14 49 Z"
+    fill="#b0dc45"
+  />
+  <ellipse cx="26" cy="30" rx="2.5" ry="3.5" fill="#192b23" />
+  <g fill="none" stroke="#192b23" stroke-width="3" stroke-linecap="round">
+    <path d="M 36 30 Q 39 27 42 30" />
+    <path d="M 27 39 Q 32 44 37 39" />
+  </g>
+</svg>

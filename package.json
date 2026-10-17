@@ -10,6 +10,7 @@
     "dev": "vite --host 127.0.0.1",
     "build:lib": "tsc -b packages/core packages/qr && node scripts/bundle.mjs",
     "build:assets": "npm run build:lib && node scripts/build-assets.mjs",
+    "build:icons": "node scripts/favicons.mjs",
     "build": "npm run build:assets && vite build",
     "check": "npm run build:lib && tsc --noEmit",
     "test": "npm run build:lib && tsx --test tests/*.test.ts",

@@ -103,6 +103,14 @@ Each module is self-contained; importing both includes two copies of the core co
 
 For independent implementations, match the extracted catalogue to the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0/spec/test-vectors.json). Those reference files remain in the tagged source tree. The downloaded `.tgz` files can also be installed directly with `npm install /path/to/package.tgz`; install matching core and QR tarballs together when using both.
 
+## Open the generator with an address
+
+Append a complete address directly after `#` to prefill the public generator: `https://spirits.boo/#sp1…` or `https://spirits.boo/#tsp1…`. Replace the abbreviated address with a complete one; no parameter name is needed.
+
+The page fills the input, removes the address fragment from the current URL, and validates the address locally. Valid addresses generate a SPirit and prepare the checked payment QR; the SPirit is shown first on arrival. Invalid addresses show the normal input error. Address links also work in an already open tab. Section links such as `#about` are preserved, and editing the input never writes the address into the URL.
+
+Fragments are excluded from the page request to the host. The original link can still be retained in browser history, bookmarks, or the service used to share it; clearing the current URL does not remove those copies. Query-string address prefilling is not supported.
+
 ## Address and appearance contracts
 
 Inputs are trimmed, fully validated, and then canonicalised. Supported inputs are BIP352 version 0 `sp` and `tsp` public addresses. A `tsp` prefix does not distinguish signet from other test networks. URI wrappers and unsupported versions are rejected.

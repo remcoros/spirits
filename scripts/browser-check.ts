@@ -63,14 +63,20 @@ async function flushFrames(page: Page) {
   );
 }
 async function qrReady(page: Page) {
-  await page.waitForFunction(() =>
-    document.querySelector('#output-status')?.textContent?.includes('payment QR ready'),
-  );
+  await page.waitForFunction(() => {
+    const button = document.querySelector<HTMLButtonElement>('#mode-qr');
+    return (
+      button &&
+      !button.disabled &&
+      button.getAttribute('aria-busy') === 'false' &&
+      document.querySelector<HTMLButtonElement>('#retry-qr')?.hidden
+    );
+  });
 }
 async function assertReflow(page: Page, label: string) {
   const problems = await page.evaluate(() => {
     const selectors =
-      'a, button, input, textarea, select, summary, h1, h2, h3, .lead, .hint, .network-tag, .output-status';
+      'a, button, input, textarea, select, summary, h1, h2, h3, .lead, .hint, .output-status';
     return Array.from(document.querySelectorAll<HTMLElement>(selectors)).flatMap((el) => {
       const box = el.getBoundingClientRect();
       if (!box.width || !box.height) return [];
@@ -327,6 +333,71 @@ try {
   const notices = await fetch(`${base}/third-party/THIRD-PARTY.md`);
   assert.equal(notices.status, 200, 'The website retains its third-party notices');
   assert.ok((await notices.text()).includes('Third-party notices'));
+  const linkedAddresses = [
+    fixtureAddress('fragment-mainnet', 1, 'mainnet'),
+    fixtureAddress('fragment-testnet').toUpperCase(),
+  ];
+  for (const linkedAddress of linkedAddresses) {
+    const cleanUrl = `${base}/?source=${parseAddress(linkedAddress).network}`;
+    await page.goto(`${cleanUrl}#${linkedAddress}`);
+    await qrReady(page);
+    assert.equal(await page.locator('#address').inputValue(), linkedAddress);
+    assert.equal(page.url(), cleanUrl, 'Prefilling removes only the address fragment');
+    assert.equal(await page.locator('#mode-spirit').getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('#download-svg').isDisabled(), false);
+    await page.locator('#mode-qr').click();
+    const svg = await page.locator('#preview > svg').evaluate((el) => el.outerHTML);
+    const linkedRaster = await sharp(Buffer.from(svg))
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    assert.equal(
+      decode(
+        new Uint8ClampedArray(linkedRaster.data),
+        linkedRaster.info.width,
+        linkedRaster.info.height,
+      )?.data,
+      linkedAddress.toLowerCase(),
+      'Linked QRs contain the complete canonical address, not the handoff URL',
+    );
+    await page.reload();
+    assert.equal(
+      await page.locator('#address').inputValue(),
+      '',
+      'Reload cannot reuse the fragment',
+    );
+    assert.equal(await page.locator('#download-svg').isDisabled(), true);
+  }
+  const badChecksum =
+    linkedAddresses[0].slice(0, -1) + (linkedAddresses[0].endsWith('q') ? 'p' : 'q');
+  for (const invalid of ['sp1q', badChecksum, 'sp1q%ZZ']) {
+    await page.goto(`${base}/#${invalid}`);
+    await page.waitForFunction(() =>
+      Boolean(document.querySelector('#address-error')?.textContent),
+    );
+    assert.equal(await page.locator('#address').inputValue(), invalid);
+    assert.equal(page.url(), base + '/', 'Invalid address fragments are also removed');
+    assert.equal(await page.locator('#preview svg').count(), 0);
+    assert.equal(await page.locator('#download-svg').isDisabled(), true);
+    assert.equal(await page.locator('#mode-qr').isDisabled(), true);
+  }
+  await page.goto(base + '/?source=sections#about');
+  assert.equal(await page.locator('#address').inputValue(), '');
+  assert.equal(new URL(page.url()).hash, '#about', 'Section fragments are preserved');
+  await page.locator('#address').fill(linkedAddresses[1]);
+  await qrReady(page);
+  assert.equal(new URL(page.url()).hash, '#about', 'Typing never writes the address into the URL');
+  await page.goto(base + '/?source=sections#developers');
+  assert.equal(await page.locator('#address').inputValue(), linkedAddresses[1]);
+  assert.equal(new URL(page.url()).hash, '#developers');
+  assert.ok(
+    !requests.some((url) =>
+      [...linkedAddresses, badChecksum, 'sp1q%ZZ'].some((value) =>
+        url.toLowerCase().includes(value.toLowerCase()),
+      ),
+    ),
+    'Incoming addresses are absent from all network request URLs',
+  );
   await page.goto(base + '/lab/');
   await page.locator('#characters .contact-cell').first().waitFor();
   assert.equal(await page.locator('#characters .contact-cell').count(), 48);
@@ -412,8 +483,10 @@ try {
   assert.equal(await race.locator('#preview svg').count(), 1, 'Avatar appears before QR checking');
   assert.equal(await race.locator('#download-svg').isDisabled(), false);
   await race.locator('#mode-qr').click();
-  await race.locator('#address').fill(fixtureAddress('newer-generation'));
+  await race.goto(`${base}/#${fixtureAddress('newer-generation')}`);
   await rasterCount(race, 2);
+  assert.equal(await race.locator('#address').inputValue(), fixtureAddress('newer-generation'));
+  assert.equal(race.url(), base + '/', 'An incoming fragment also prefills an already open page');
   await releaseRaster(race, 0);
   await race.waitForFunction(
     () => (window as unknown as { rasterGate: RasterGate }).rasterGate.completed === 1,
@@ -459,8 +532,9 @@ try {
       'Stale PNG cleanup cannot clear a newer export',
     );
     assert.equal(await race.locator('#download-png').isDisabled(), true);
-    assert.ok(
-      (await race.locator('#output-status').textContent())?.includes('payment QR ready'),
+    assert.equal(
+      await race.locator('#output-status').textContent(),
+      '',
       'Stale success/failure cannot replace current status',
     );
     const nextDownload = race.waitForEvent('download');
@@ -534,6 +608,9 @@ try {
     pocArchiveLinks: false,
     invalidInput: true,
     automaticGeneration: true,
+    fragmentPrefill: true,
+    fragmentQrDecode: true,
+    invalidFragmentInput: true,
     rotatingTestnetExamples: exampleAddresses.size,
     qrFailureIsolation: true,
     staleExportInvalidation: true,

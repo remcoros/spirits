@@ -324,15 +324,6 @@ textarea[aria-invalid='true'] {
   background: var(--color-white);
   box-shadow: 0 1px 3px var(--color-rule);
 }
-.network-tag {
-  font-size: 0.875rem;
-  line-height: 1.3;
-  white-space: normal;
-  text-transform: none;
-  font-weight: 800;
-  letter-spacing: 0;
-  color: var(--color-muted);
-}
 .ghost-stage {
   display: grid;
   place-items: center;
@@ -387,6 +378,10 @@ textarea[aria-invalid='true'] {
   color: var(--color-muted);
   text-align: center;
   margin: 0.8rem 0 0;
+}
+.output-status:empty {
+  min-height: 0;
+  margin: 0;
 }
 .meet-section {
   background: var(--color-paper-2);
@@ -781,9 +776,6 @@ td {
     font-size: 0.875rem;
     padding: 0.5rem 0.6rem;
     min-height: 44px;
-  }
-  .network-tag {
-    font-size: 0.875rem;
   }
   .form-actions {
     gap: 0.5rem 1rem;

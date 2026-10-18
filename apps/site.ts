@@ -69,7 +69,7 @@ function paint() {
       ? 'Paste an address to meet your SPirit.'
       : result.qrState === 'error'
         ? 'Payment QR unavailable.'
-        : 'Preparing payment QR…';
+        : '';
     $('preview').replaceChildren(waiting);
     $('preview').setAttribute('aria-label', 'No current image for this input');
   }
@@ -78,13 +78,8 @@ function paint() {
   $<HTMLButtonElement>('mode-qr').disabled = !result;
   $('mode-qr').setAttribute('aria-busy', String(result?.qrState === 'checking'));
   $('retry-qr').hidden = result?.qrState !== 'error';
-  $('output-status').textContent = !result
-    ? ''
-    : result.qrState === 'checking'
-      ? 'SPirit ready. Checking payment QR…'
-      : result.qrState === 'error'
-        ? 'SPirit ready. The QR could not be checked.'
-        : 'SPirit and payment QR ready.';
+  $('output-status').textContent =
+    result?.qrState === 'error' ? 'The QR could not be checked.' : '';
   updateDownloads();
   updateResultLink();
 }
@@ -103,7 +98,6 @@ function invalidate() {
   input.removeAttribute('aria-invalid');
   $('preview-title').textContent = 'Yours is waiting.';
   $('preview-detail').textContent = '';
-  $('network-tag').textContent = 'Awaiting address';
   paint();
 }
 
@@ -152,13 +146,21 @@ function generate(showErrors = false) {
     address: spirit.recipe.address,
     filename: `spirit-${spirit.recipe.identity.slice(0, 8)}-${spirit.recipe.variationId.slice(0, 8)}`,
   };
-  $('network-tag').textContent =
-    spirit.recipe.network === 'mainnet' ? 'Bitcoin mainnet' : 'Test network';
   $('preview-title').textContent = 'Meet your SPirit.';
   $('preview-detail').textContent = examples.includes(spirit.recipe.address)
     ? 'Example address. Do not send funds to it.'
     : '';
   void checkQr(result);
+}
+
+function fillFromFragment() {
+  const address = location.hash.slice(1);
+  if (!/^(?:sp|tsp)1/i.test(address)) return;
+  const url = new URL(location.href);
+  url.hash = '';
+  history.replaceState(history.state, '', url);
+  input.value = address;
+  generate(true);
 }
 
 input.addEventListener('input', (event) => {
@@ -219,3 +221,6 @@ for (const kind of exportKinds)
       }
     }
   });
+
+window.addEventListener('hashchange', fillFromFragment);
+fillFromFragment();

@@ -6,7 +6,7 @@ import { $, addressRecovery, describedSpirit, download, svgToPng, verifyQr } fro
 const examples = Array.from({ length: 10 }, (_, i) =>
   fixtureAddress(i === 0 ? 'hello-spirit' : `example-${i}`, 1, 'testnet'),
 );
-let exampleIndex = 0;
+let exampleIndex = 1;
 $('brand-ghost').innerHTML = describedSpirit(fixtureAddress('brand'), 64).svg;
 $('preview').innerHTML = describedSpirit(examples[0], 512).svg;
 $('mobile-ghost').innerHTML = describedSpirit(examples[0], 128).svg;
@@ -79,7 +79,7 @@ function paint() {
   $('mode-qr').setAttribute('aria-busy', String(result?.qrState === 'checking'));
   $('retry-qr').hidden = result?.qrState !== 'error';
   $('output-status').textContent = !result
-    ? 'Downloads appear when your address is ready.'
+    ? ''
     : result.qrState === 'checking'
       ? 'SPirit ready. Checking payment QR…'
       : result.qrState === 'error'
@@ -102,7 +102,7 @@ function invalidate() {
   $('address-error').textContent = '';
   input.removeAttribute('aria-invalid');
   $('preview-title').textContent = 'Yours is waiting.';
-  $('preview-detail').textContent = 'Your SPirit appears automatically.';
+  $('preview-detail').textContent = '';
   $('network-tag').textContent = 'Awaiting address';
   paint();
 }
@@ -156,10 +156,8 @@ function generate(showErrors = false) {
     spirit.recipe.network === 'mainnet' ? 'Bitcoin mainnet' : 'Test network';
   $('preview-title').textContent = 'Meet your SPirit.';
   $('preview-detail').textContent = examples.includes(spirit.recipe.address)
-    ? 'Public example keys. Never receive funds to this address.'
-    : spirit.recipe.network === 'mainnet'
-      ? 'A character made from your Silent Payment address.'
-      : 'Your test-network address. The tsp prefix does not identify a particular test chain.';
+    ? 'Example address. Do not send funds to it.'
+    : '';
   void checkQr(result);
 }
 

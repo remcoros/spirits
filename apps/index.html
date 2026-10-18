@@ -37,9 +37,7 @@
           </p>
           <h1 id="hero-title">Give your address<br />some spirit.</h1>
           <div class="lead-with-example">
-            <p class="lead">
-              A familiar face for a very long address. Make a SPirit and a payment QR.
-            </p>
+            <p class="lead">A familiar face for a very long address.</p>
             <span class="mobile-example" id="mobile-ghost" aria-hidden="true"></span>
           </div>
           <form id="generator-form" novalidate>
@@ -55,7 +53,7 @@
               aria-describedby="address-hint address-error"
             ></textarea>
             <p id="address-hint" class="hint">
-              Paste an sp1 or tsp1 address. Your SPirit appears automatically, in this browser.
+              Paste an sp1 or tsp1 address. Your SPirit appears automatically.
             </p>
             <p id="address-error" class="error" role="alert"></p>
             <div class="form-actions">
@@ -65,7 +63,7 @@
               >
             </div>
           </form>
-          <p class="privacy-note">No account. No uploads. No address lookup.</p>
+          <p class="privacy-note">Offline. Your address stays in your browser.</p>
         </div>
         <div class="output-panel" aria-busy="false" id="output-panel">
           <div class="preview-top">
@@ -82,7 +80,7 @@
           ></div>
           <div class="preview-caption">
             <strong id="preview-title">Yours is waiting.</strong>
-            <p id="preview-detail">Paste an address to discover its character.</p>
+            <p id="preview-detail">An example SPirit. Paste your address to see yours.</p>
           </div>
           <div class="download-actions">
             <button type="button" class="secondary" id="download-svg" disabled>
@@ -92,9 +90,7 @@
             </button>
           </div>
           <p class="export-guide">PNG for images and sharing. SVG for scalable artwork.</p>
-          <p class="output-status" id="output-status" role="status" aria-live="polite">
-            An example ghost is shown above.
-          </p>
+          <p class="output-status" id="output-status" role="status" aria-live="polite"></p>
           <button type="button" class="text-button" id="retry-qr" hidden>Retry QR</button>
         </div>
       </section>
@@ -137,12 +133,11 @@
             CC0.
           </p>
           <div class="developer-links">
+            <a href="https://silentpayments.xyz/">silentpayments.xyz ↗</a>
+            <span aria-hidden="true">·</span>
             <a href="https://github.com/remcoros/spirits/blob/main/docs/usage.md">Usage guide ↗</a
             ><a href="https://github.com/remcoros/spirits">GitHub ↗</a>
           </div>
-          <p class="hint">
-            Installation, npm packages and standalone modules are covered in the usage guide.
-          </p>
         </div>
         <pre
           aria-label="TypeScript integration example"

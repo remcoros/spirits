@@ -140,6 +140,7 @@ try {
   await page.goto(base);
   await page.evaluate(() => document.fonts.ready);
   await page.locator('#preview svg').waitFor();
+  const initialCharacter = await page.locator('#preview svg title').textContent();
   for (const width of [320, 375, 414, 768, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     await assertReflow(page, `Public page at ${width}`);
@@ -171,7 +172,7 @@ try {
   assert.ok(!(await page.locator('#address-error').textContent())?.includes('Bech32m'));
   await page.locator('#example').click();
   await qrReady(page);
-  assert.ok((await page.locator('#preview-detail').textContent())?.includes('Public example keys'));
+  assert.ok((await page.locator('#preview-detail').textContent())?.includes('Do not send funds'));
   await page.setViewportSize({ width: 375, height: 500 });
   await page.evaluate(() => scrollTo(0, 0));
   await page.waitForFunction(() => !document.querySelector<HTMLElement>('#result-link')!.hidden);
@@ -191,7 +192,11 @@ try {
     (await page.locator('#preview svg title').textContent())?.includes('signature accessory'),
   );
   const address = await page.locator('#address').inputValue();
-  assert.equal(address, fixtureAddress('hello-spirit'));
+  assert.notEqual(
+    await page.locator('#preview svg title').textContent(),
+    initialCharacter,
+    'The first example reveals a different character from the initial preview',
+  );
   const exampleAddresses = new Set([address]);
   const exampleImages = new Set([await page.locator('#preview').innerHTML()]);
   for (let i = 1; i < 10; i++) {
@@ -201,9 +206,7 @@ try {
     assert.equal(parseAddress(example).network, 'testnet');
     exampleAddresses.add(example);
     exampleImages.add(await page.locator('#preview').innerHTML());
-    assert.ok(
-      (await page.locator('#preview-detail').textContent())?.includes('Public example keys'),
-    );
+    assert.ok((await page.locator('#preview-detail').textContent())?.includes('Do not send funds'));
   }
   assert.equal(exampleAddresses.size, 10);
   assert.equal(exampleImages.size, 10);
@@ -294,8 +297,8 @@ try {
   await qrReady(page);
   assert.equal(await page.locator('#address').inputValue(), fixtureAddress('new-address'));
   assert.ok(
-    !(await page.locator('#preview-detail').textContent())?.includes('example keys'),
-    'User-provided tsp is not labeled as public fixture keys',
+    !(await page.locator('#preview-detail').textContent())?.includes('Do not send funds'),
+    'User-provided tsp is not labeled as an example address',
   );
   const pastedExample = ' ' + fixtureAddress('hello-spirit').toUpperCase() + ' ';
   await page.locator('#address').fill(pastedExample);
@@ -306,14 +309,15 @@ try {
     'Input text is preserved',
   );
   assert.ok(
-    (await page.locator('#preview-detail').textContent())?.includes('Public example keys'),
-    'Manually pasted known fixture keeps its public-key warning',
+    (await page.locator('#preview-detail').textContent())?.includes('Do not send funds'),
+    'Manually pasted known fixture keeps its example-address warning',
   );
   assert.deepEqual(
     await page
       .locator('.developer-links a')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
     [
+      'https://silentpayments.xyz/',
       'https://github.com/remcoros/spirits/blob/main/docs/usage.md',
       'https://github.com/remcoros/spirits',
     ],

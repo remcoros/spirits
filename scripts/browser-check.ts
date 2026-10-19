@@ -335,7 +335,7 @@ try {
       .locator('.developer-links a')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
     [
-      'https://silentpayments.xyz/',
+      'https://github.com/bitcoin/bips/blob/master/bip-0352.mediawiki',
       'https://github.com/remcoros/spirits/blob/main/docs/usage.md',
       'https://github.com/remcoros/spirits',
     ],

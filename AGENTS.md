@@ -10,12 +10,12 @@ The working name and character direction are settled: **SPirits**, expressive gh
 
 ## Start a new session
 
-1. Read this file and the [quick start](README.md).
+1. Read this guide and [README.md](README.md) for the public product introduction and setup.
 2. Check `git status --short --branch`; preserve existing work.
 3. Find the newest `artifacts/*-session-handoff.md` when continuing previous work. Artifacts are intentionally ignored, so use `rg --files --hidden --no-ignore artifacts -g '*-session-handoff.md'` or an explicit file listing. Treat a handoff as historical evidence; verify live processes and current code before relying on it.
 4. Read [docs/README.md](docs/README.md), then only the implementation notes relevant to the task.
 
-`docs/` is the canonical home for architecture, algorithm and implementation notes. `spec/` contains machine-readable vectors and provenance. Session logs and temporary findings belong in `artifacts/`, not in this guide or permanent design notes.
+`docs/` is the canonical home for architecture, algorithm and implementation notes. `spec/` contains machine-readable vectors and provenance. Session logs and temporary findings belong in `artifacts/`.
 
 ## Repository map
 
@@ -27,6 +27,7 @@ The working name and character direction are settled: **SPirits**, expressive gh
 | `packages/core/assets/spirits-v0.json` | Portable ordered artwork catalogue                                            |
 | `packages/core/src/artwork.ts`         | Generated TypeScript copy of the catalogue                                    |
 | `scripts/artwork.mjs`                  | Original vector-art authoring source                                          |
+| `scripts/readme-banner.ts`             | README banner from the existing logo and real library-rendered SPirits        |
 | `packages/qr/src/index.ts`             | QR layout, structural clearance and Spirit composition                        |
 | `packages/qr/src/vendor/`              | Pinned upstream MIT QR encoder; provenance in package THIRD-PARTY.md          |
 | `apps/index.html`, `apps/site.ts`      | Public marketing/generator page                                               |
@@ -67,29 +68,22 @@ The 70-trillion raw recipe count includes geometric/motif variants and is not a 
 
 Requires Node 24 and npm. Install exact dependencies with `npm ci`; keep `package-lock.json` in sync. Use installed source/types and upstream primary documentation when dependency APIs matter.
 
-```sh
-npm run build:lib          # required before the first dev run
-npm run dev                # public page on 127.0.0.1:5187, lab at /lab/
-npm run check              # library builds + strict TypeScript checks
-npm test                   # public contracts and final QR raster decoding
-npm run build              # libraries, package verification artifacts and static site
-npm run build:assets       # build libraries and stage package verification artifacts
-npm run test:packages      # isolated tarball and standalone-module consumers
-npm run test:browser       # built site; owns temporary preview port 5287
-npm run audit:variety -- 10000
-npm run audit:visual       # exact 32/64px raster duplicates in a sample
-npm run format
-npm run format:check       # formatting check without mutation
-```
+Use [validation.md](docs/validation.md) to choose checks and interpret their evidence; [package.json](package.json) defines the commands. Run `npm run build` before package-consumer or built-site browser checks.
 
 Rebuild libraries after editing their source; the dev app consumes built workspace exports. Restart the owned Vite server if the dependency optimizer is stale. Development uses strict port 5187, built preview 4187, browser checks 5287. Inspect ownership before stopping processes. `SPIRITS_BROWSER` overrides the browser test's default `/usr/bin/google-chrome`.
 
-`npm run build` writes local tarballs, standalone ESM, catalogue/reference data, notices and a manifest into ignored `dist/release/`, then both pages into ignored `dist/site/`. Package/browser checks require those outputs. The release workflow keeps the tested staging directory as an internal Actions artifact for npm byte verification and bootstrap checks. Public packages, including their bundled standalone modules and artwork catalogue, download from npm. GitHub Releases contain change notes, npm links and versioned documentation, with no custom attachments; GitHub supplies its normal tagged source-code archives. The website links to GitHub and `docs/usage.md`. Do not restore the former PoC source ZIP or website package-download tree. Generated avatar/QR SVG and PNG exports remain part of both applications.
+Build outputs stay in ignored `dist/release/` and `dist/site/`. Before changing distribution, read [architecture.md](docs/architecture.md#distribution) and [releasing.md](docs/releasing.md). Public packages download from npm; GitHub Releases contain notes and links without custom attachments. Keep the website's GitHub/usage links and generated SVG/PNG exports; do not restore the former PoC source ZIP or package-download tree.
 
 Run checks appropriate to the change; see [validation.md](docs/validation.md). A software decode, visual screenshot, package-consumer test and real wallet-camera/print scan are different evidence. Chrome's native barcode detector may be unavailable; report the skip accurately. Screen scans require separate validation; print reliability is unvalidated in 0.1.
 
 ## Documentation and Git
 
-Update the relevant `docs/` contract when behaviour changes. Keep README integration examples accurate. Put temporary screenshots/reports and timestamped `artifacts/{datetime}-session-handoff.md` files in the ignored artifact directory. A handoff should record actual validation, pending work, live process ownership and Git state; do not turn this guide into a session log.
+README is the human-facing GitHub introduction: lead with what SPirits does, link prominently to `https://spirits.boo/`, then provide concise usage, integration and local setup. Use the existing brand and real library-rendered artwork. Keep copy concrete and link to `docs/` for detailed contracts, validation and release procedures. This guide owns agent workflow and navigation.
+
+Public copy should help the reader understand or complete their current task. Keep fixture provenance, implementation details and validation reports in technical docs. Include a caveat only where it changes a reader's decision or next action, and use their language. Prefer omitting unnecessary copy to rewriting it as another warning.
+
+Update the relevant `docs/` contract when behaviour changes and keep README examples accurate. For README artwork changes, rebuild libraries and run `npx tsx scripts/readme-banner.ts`; the banner uses public disposable fixtures and lives in `docs/assets/`, separate from the deployed site's `public/` assets. Review its rendered output at GitHub reading widths.
+
+Put temporary screenshots/reports and timestamped `artifacts/{datetime}-session-handoff.md` files in the ignored artifact directory. A handoff should record actual validation, pending work, live process ownership and Git state.
 
 Keep `artifacts/`, `node_modules/`, package build outputs and `dist/` out of Git. Preserve unrelated user changes. A request to initialize a repository is not a request to commit, push, publish npm packages, deploy the site or create releases. Follow the user's authorization for those steps; do not invent remotes or claim publication or deployment beyond observed evidence.

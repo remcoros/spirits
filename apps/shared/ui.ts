@@ -12,7 +12,7 @@ export { svgToPng };
 /** Describes the public artwork, never a claim about who controls an address. */
 export function spiritDescription(recipe: SpiritRecipe): string {
   const c = recipe.character;
-  return `${assetName('palette', c.palette)} SPirit. ${assetName('body', c.body)} body; ${assetName('eyes', c.eyes)} eyes; ${assetName('mouth', c.mouth)} mouth; ${assetName('head', c.head)} head feature; ${assetName('item', c.item)} signature accessory. Experimental v0.`;
+  return `${assetName('palette', c.palette)} SPirit. ${assetName('body', c.body)} body; ${assetName('eyes', c.eyes)} eyes; ${assetName('mouth', c.mouth)} mouth; ${assetName('head', c.head)} head feature; ${assetName('item', c.item)} signature accessory.`;
 }
 export function describedSpirit(address: string, size = 256) {
   const recipe = deriveSpirit(address);
@@ -20,7 +20,7 @@ export function describedSpirit(address: string, size = 256) {
 }
 export function addressRecovery(error: unknown, value: string): string {
   if (!(error instanceof SpiritAddressError))
-    return 'The finished QR could not be checked in this browser. Try again, or use another browser.';
+    return 'The QR check failed. Try again or use another browser.';
   if (!/^(?:t?sp)1/i.test(value.trim()))
     return 'Paste the complete Silent Payment address from your wallet. It begins with sp1 or tsp1.';
   switch (error.code) {
@@ -29,11 +29,11 @@ export function addressRecovery(error: unknown, value: string): string {
     case 'network':
       return 'Use a Silent Payment address beginning with sp1 for Bitcoin mainnet or tsp1 for a test network.';
     case 'key':
-      return 'This address contains invalid public keys. Copy a fresh address directly from your wallet.';
+      return 'This address is invalid. Copy a new address from your wallet.';
     case 'length':
       return 'This address looks incomplete. Copy the entire address again from your wallet.';
     default:
-      return 'The address could not be validated. Copy the entire address again without changing its letters or case.';
+      return 'This address is invalid. Copy it again from your wallet without changing its letters or case.';
   }
 }
 

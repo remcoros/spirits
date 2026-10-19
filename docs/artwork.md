@@ -6,7 +6,7 @@ Spirits are expressive, recognisable ghosts with stable silhouettes, faces, colo
 
 The current experimental v0 catalogue uses 32 primary body contours and eight tail constructions with two depth treatments. Rounded, angular, pear-shaped, cloudlike, leaning, notched and stepped shapes protect a shared face region. All 32 head slots contain different motifs: hats, ears, plants, headphones, celestial shapes and other head features. The 64 permanent-item slots contain 32 motifs with two poses each. Their larger silhouettes include carried books, umbrellas, balloons, cameras, shields and lanterns.
 
-Sixteen eye motifs retain four expression/spacing treatments each, including closed, winking, inky, angular and glasses eyes. Eight broader mouth motifs retain four treatments; larger grins, frowns, gasps and open mouths help distinguish characters sharing the same eyes. Sixteen broader belly-marking designs have four placement treatments each. Palette shade roles use stronger lightness differences so patches, stripes, rings and other markings contribute in grayscale. These choices aim to strengthen small-size recognition; they do not guarantee that unrelated scan keys look different.
+Sixteen eye motifs have four expression/spacing variants each, including closed, winking, inky, angular and glasses eyes. Eight mouth motifs have four variants each. Larger grins, frowns, gasps and open mouths help distinguish characters with the same eyes. Sixteen belly-marking designs each have four placements. Palette lightness differences keep patches, stripes, rings and other markings visible in grayscale. These choices aim to improve recognition at small sizes. Unrelated scan keys can still produce similar-looking characters.
 
 The core catalogue has the following raw choices:
 
@@ -37,17 +37,21 @@ Do not edit those two generated files independently. The runtime catalogue is de
 
 Use palette placeholders (`{{ink}}`, `{{body}}`, `{{shade}}`, `{{accent}}`, `{{paper}}`) in fragments. Body and hem paths compose in a normalised coordinate system; the remaining fragments use the 256-unit reference viewBox. Keep fragments self-contained: no fonts, image URLs, external references, SVG IDs, scripts or filters.
 
-Keep a clear face region and separate the lower-body features. Broad markings occupy the central belly, larger permanent items sit to its right, and the small label badge sits to its left. Preserve the common circular QR frame when adding protruding objects; never conceal an oversize asset with clipping. Label trim is a short side seam between face and badge, rather than another band across the belly or an unattached line below a shallow hem. Its sixteen values combine four heights with four distinct dash treatments. The badge and 4×4 glyph are secondary details; recognition of an individual label is not promised inside a small payment QR.
+Keep the face clear and lower-body features separate. Broad markings occupy the central belly, larger permanent items sit to its right, and the label badge sits to its left. Fit protruding objects inside the circular QR frame. Do not hide oversize art with clipping.
+
+Label trim is a short side seam between the face and badge. Keep it off the belly and attached to the body. Its sixteen values combine four heights and four dash patterns. The badge and 4×4 glyph are small details; they may be hard to distinguish inside a small payment QR.
 
 ## Composition checks
 
-Evaluate full-size, 64px, 32px and embedded-QR output. Large shape differences should contribute most to recognition. Ensure head features remain inside the viewBox, signature items do not hide distinguishing body details, and label trims leave facial features untouched. Assess colour-blind/monochrome visibility in visual review; pixel uniqueness does not prove perceptual separation.
+Review full-size, 64px, 32px and embedded-QR output. Large shape differences should be the main recognition cues. Keep head features inside the viewBox, signature items clear of distinguishing body details, and label trims away from the face. Check colour-vision simulations and monochrome previews. Different pixels do not prove that people can tell characters apart.
 
-The art-review goal for unrelated close-looking Spirits is **two clear, memorable differences at 32px, including at least one that remains clear without colour**. Sharing body, colour and head feature is acceptable when face, broad markings or a readable permanent item carry those differences. A pupil shift, brow thickness change or tiny rotated symbol is a weak identity cue. This is a review heuristic for sampled characters, not a guarantee for every possible pair or a measured recognition threshold. Label families intentionally preserve the same character and are outside this unrelated-character rule.
+When reviewing unrelated Spirits that look alike, look for two clear, memorable differences at 32px. At least one must remain clear without colour. Characters can share a body, colour and head feature if their faces, broad markings or recognisable accessories provide those differences. A pupil shift, brow thickness change or tiny rotated symbol is a weak cue.
+
+This is a heuristic for sampled characters, not a measured recognition threshold or a guarantee for every pair. Label families intentionally share a character, so this rule does not apply to them.
 
 The lab shows each source element and a grid of complete characters. Family rows demonstrate eight real BIP352 labels sharing the same core. The variety audit measures trait coverage and duplicate recipes. The visual audit fixes all label accents, compares exact 32px and 64px rasters, and selects close grayscale, colour and outline pairs for review. Its optional 50,000-character mode uses approximate candidate selection; it does not inspect every pair. See [validation](validation.md) for commands and evidence limits. Participant review remains necessary before treating the art-review goal as validated human recognition.
 
-Experimental v0 artwork intentionally changes as these checks expose weaknesses. The current contour, head, marking, shade and item pass retains all asset IDs, catalogue ordering, trait counts and SHA256 domains. Recipe assignments therefore remain identical while asset names and SVG artwork change. The raw recipe budget is unchanged. Regenerate reference SVG hashes only after visual review; do not interpret unchanged recipe IDs as a promise of frozen v0 appearance.
+The v0 artwork can change when review exposes problems. The current contour, head, marking, shade and item changes preserve asset IDs, catalogue ordering, trait counts and SHA256 domains. Addresses therefore keep the same recipes and recipe count even when asset names and SVGs change. Review the images before regenerating reference SVG hashes. An unchanged recipe ID does not mean v0 artwork is frozen.
 
 ## Intentional v0 updates
 

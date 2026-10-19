@@ -178,7 +178,11 @@ try {
   assert.ok(!(await page.locator('#address-error').textContent())?.includes('Bech32m'));
   await page.locator('#example').click();
   await qrReady(page);
-  assert.ok((await page.locator('#preview-detail').textContent())?.includes('Do not send funds'));
+  assert.ok(
+    (await page.locator('#preview-detail').textContent())?.includes(
+      'Example address. Paste your wallet address to receive payments.',
+    ),
+  );
   await page.setViewportSize({ width: 375, height: 500 });
   await page.evaluate(() => scrollTo(0, 0));
   await page.waitForFunction(() => !document.querySelector<HTMLElement>('#result-link')!.hidden);
@@ -212,7 +216,11 @@ try {
     assert.equal(parseAddress(example).network, 'testnet');
     exampleAddresses.add(example);
     exampleImages.add(await page.locator('#preview').innerHTML());
-    assert.ok((await page.locator('#preview-detail').textContent())?.includes('Do not send funds'));
+    assert.ok(
+      (await page.locator('#preview-detail').textContent())?.includes(
+        'Example address. Paste your wallet address to receive payments.',
+      ),
+    );
   }
   assert.equal(exampleAddresses.size, 10);
   assert.equal(exampleImages.size, 10);
@@ -303,7 +311,9 @@ try {
   await qrReady(page);
   assert.equal(await page.locator('#address').inputValue(), fixtureAddress('new-address'));
   assert.ok(
-    !(await page.locator('#preview-detail').textContent())?.includes('Do not send funds'),
+    !(await page.locator('#preview-detail').textContent())?.includes(
+      'Example address. Paste your wallet address to receive payments.',
+    ),
     'User-provided tsp is not labeled as an example address',
   );
   const pastedExample = ' ' + fixtureAddress('hello-spirit').toUpperCase() + ' ';
@@ -315,8 +325,10 @@ try {
     'Input text is preserved',
   );
   assert.ok(
-    (await page.locator('#preview-detail').textContent())?.includes('Do not send funds'),
-    'Manually pasted known fixture keeps its example-address warning',
+    (await page.locator('#preview-detail').textContent())?.includes(
+      'Example address. Paste your wallet address to receive payments.',
+    ),
+    'Manually pasted known fixture keeps its example label and wallet-address instruction',
   );
   assert.deepEqual(
     await page
@@ -461,7 +473,7 @@ try {
   await page.screenshot({ path: 'artifacts/lab.png', fullPage: true });
   await page.locator('#audit').click();
   await page.waitForFunction(() =>
-    document.querySelector('#audit-result')?.textContent?.includes('distinct character recipes'),
+    document.querySelector('#audit-result')?.textContent?.includes('different character recipes'),
   );
   const audit = await page.locator('#audit-result').textContent();
   await page.locator('#inspect-address').fill('invalid');
@@ -560,7 +572,10 @@ try {
   assert.ok((await race.locator('#lab-error').textContent())?.includes('whole label'));
   assert.equal(await race.locator('#recipe').textContent(), '');
   assert.equal(await race.locator('#family svg').count(), 0);
-  assert.ok(!(await race.locator('#lab-status').textContent())?.includes('SVGs ready'));
+  assert.equal(
+    await race.locator('#lab-status').textContent(),
+    'Enter valid test settings to generate images.',
+  );
   await race.locator('#label').fill('2');
   await race.locator('#generate').click();
   await race.locator('#check-qr').click();
@@ -575,10 +590,7 @@ try {
     'Old decode cannot clear a newer busy state',
   );
   assert.equal(await race.locator('#check-qr').isDisabled(), true);
-  assert.equal(
-    await race.locator('#lab-status').textContent(),
-    'Decoding the final rendered image…',
-  );
+  assert.equal(await race.locator('#lab-status').textContent(), 'Reading the QR image…');
   await releaseRaster(race, 1);
   await race.waitForFunction(() =>
     document.querySelector('#lab-status')?.textContent?.startsWith('PASS'),

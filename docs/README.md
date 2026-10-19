@@ -1,6 +1,6 @@
 # Implementation notes
 
-These documents describe the current SPirits implementation and the decisions behind it. Update the relevant note when changing its contract; keep session history and temporary findings in ignored `artifacts/` handoffs instead.
+These notes describe how SPirits works and why. Update the relevant note when a contract changes. Keep session history and temporary findings in ignored `artifacts/` handoffs.
 
 - [Usage](usage.md): npm packages, extracting standalone modules and artwork, integration and browser exports.
 - [Releasing](releasing.md): initial npm setup, trusted publishing and tagged releases.
@@ -18,4 +18,4 @@ Machine-readable reference data stays under `spec/`:
 - [Official BIP352 address fixtures](../spec/bip352-addresses.json) and [provenance](../spec/bip352-source.json).
 - [Portable artwork catalogue](../packages/core/assets/spirits-v0.json).
 
-The [root README](../README.md) is the quick start. [AGENTS.md](../AGENTS.md) is the operational entry point for coding agents.
+The [root README](../README.md) introduces SPirits and shows how to use it. Coding agents start with [AGENTS.md](../AGENTS.md).

@@ -11,14 +11,14 @@ SPirits turns a Bitcoin Silent Payment address into a familiar little ghost. Cre
 ## Meet your SPirit
 
 1. Open [spirits.boo](https://spirits.boo/) and paste a Silent Payment address from your wallet, or choose **Try an example** to look around.
-2. See your SPirit, or switch to **Payment QR** for a QR containing your full address with the matching ghost in the centre.
+2. View your SPirit, or switch to **Payment QR** to put your full address and matching ghost in a QR.
 3. Download an SVG for scalable artwork or a PNG for sharing.
 
 Everything is generated locally in your browser. Your address isn't uploaded.
 
 ## How it works
 
-Your address's scan key shapes the ghost: its silhouette, expression, colours and signature accessory. Wallet labels that share that scan key keep the same character, with a small badge and trim variation. Changing the image size or export format keeps the character too.
+Your address's scan key determines the ghost's shape, expression, colours and signature accessory. Wallet labels that share that key keep the same character and change its badge and trim. The character stays the same at every image size and export format.
 
 ## Use in your app
 
@@ -55,7 +55,7 @@ npm run dev
 
 Open [the generator](http://127.0.0.1:5187/) or [the lab](http://127.0.0.1:5187/lab/). The lab lets you inspect addresses, compare characters and explore label families.
 
-Rebuild the libraries after changing their source. The dev site consumes their built exports; restarting Vite may also be needed after a rebuild.
+Rebuild the libraries after changing their source. The dev site imports the built libraries. Restart Vite if it still shows the old output.
 
 Run `npm run check` for TypeScript and `npm test` for library contracts and final QR images. The [validation guide](docs/validation.md) covers browser checks, package consumers and visual audits.
 

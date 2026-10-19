@@ -4,7 +4,7 @@
 
 This is an application/library repository under a directory that also contains StartOS projects. It is not a StartOS package and has no Start SDK dependency.
 
-One npm-workspace repository contains two independently distributable TypeScript packages and two static HTML applications:
+The npm workspace contains two TypeScript packages and two static HTML applications. Each package can be distributed separately.
 
 ```text
 @remcoros/spirits ──► @remcoros/spirits-qr
@@ -14,43 +14,63 @@ One npm-workspace repository contains two independently distributable TypeScript
        public page + development lab
 ```
 
-The arrow from core to QR indicates a dependency flowing into QR: QR imports core. Core must not import QR, either application, browser UI helpers, or development fixture generation.
+QR imports core. Core must not import QR, either application, browser UI helpers or development fixtures.
 
 ## Core package
 
-`packages/core/src/address.ts` validates and encodes public BIP352 key pairs. `index.ts` owns trait selection and SVG composition. `artwork.ts` is generated, frozen-at-runtime catalogue data; the separately shipped JSON supports native ports.
+`packages/core/src/address.ts` validates and encodes public BIP352 key pairs. `index.ts` selects traits and renders SVG. `artwork.ts` contains generated catalogue data, frozen at runtime. The package also ships a JSON catalogue for native ports.
 
-The core requires no DOM, canvas, filesystem or network. SHA256 comes from `@noble/hashes`, Bech32m from `@scure/base`, and public point validation from `@noble/curves`. Exact versions are pinned. Each trait has an independent hash domain; no shared small PRNG state limits the selection space.
+The core requires no DOM, canvas, filesystem or network. It uses `@noble/hashes` for SHA256, `@scure/base` for Bech32m and `@noble/curves` to validate public points. Dependency versions are pinned. Each trait has its own hash domain, so a shared small PRNG state does not limit the number of recipes.
 
-The optional `@remcoros/spirits/browser` entry point converts generated SVG to a PNG Blob using browser canvas. Raster conversion is kept out of the platform-neutral core. PNG bytes are not promised identical between different rasterisers.
+The optional `@remcoros/spirits/browser` entry point converts generated SVG to a PNG Blob using browser canvas. The core does not include raster conversion. Different rasterisers can produce different PNG bytes.
 
 ## QR extension
 
-`@remcoros/spirits-qr` imports core and a vendored, pinned MIT Project Nayuki encoder. Its high-level API accepts a public address, derives the corresponding Spirit and builds the QR from that same input. It does not accept unrelated user-supplied artwork in place of the derived Spirit.
+`@remcoros/spirits-qr` imports core and a vendored, pinned MIT Project Nayuki encoder. It accepts a public address, derives its Spirit and builds the QR from the same input. Callers cannot replace the derived Spirit with unrelated artwork.
 
 Both decorated and plain QR output use standard complete-address text. The layout and evidence requirements are in [QR generation](qr.md).
 
 ## Applications
 
-The public page (`apps/index.html`, `apps/site.ts`) generates a Spirit as soon as the input is valid. Avatar downloads are available immediately; QR display and downloads wait for a local read-back check of the final composed image. A failed QR check leaves the Spirit available and offers a retry. Ten disposable test-network examples rotate on request and retain their public-key warning. Incomplete typing stays quiet; invalid pastes and completed input receive targeted errors.
+### Public generator
 
-Changing the input immediately invalidates old output. Operation counters prevent stale QR checks or PNG callbacks from restoring it. The selected preview mode, input text and focus stay under user control. A result link reveals an offscreen preview on demand. SVG titles describe the visible character traits.
+The public page uses `apps/index.html` and `apps/site.ts`. A valid address generates a Spirit and enables avatar downloads immediately. QR display and downloads wait for a local decode of the composed image. If that check fails, the avatar remains available and the user can retry the QR.
 
-The lab (`apps/lab/`) creates disposable public test fixtures, inspects existing public addresses, displays label families and unrelated characters, previews every catalogue entry, and exposes recipes and QR metadata. Its fixture module is development tooling, not wallet key-management functionality. A BIP352 label index cannot be recovered from a public address; real label creation requires the private scan key. Fixture generation and public inspection occupy separate labelled groups. Editing any fixture control or the inspected address clears dependent previews and exports; invalid labels cannot retain ready output. Decode callbacks own their serial and busy state. The character grid supports two pinned fixtures that survive batch changes, fixed label accents, grayscale viewing, and 110/64/32px comparisons. These are visual review tools, not proof of human-distinguishable or unique identities. Pins exist only in tab memory and contain public reproducible fixtures.
+The page cycles through ten test-network examples. Known examples stay labelled and direct users to a wallet address for payments. Errors appear after invalid pastes or completed input, not during incomplete typing.
 
-The browser pages share library APIs and small UI/export helpers. There is no second rendering algorithm in either page. Fonts and scripts are served locally. Typed or pasted addresses are never copied into the URL. The public page accepts incoming raw `#sp1…` or `#tsp1…` fragments on load and fragment changes, clears them with `history.replaceState` before validation, and uses the existing generation flow. Section fragments remain untouched. Addresses are not persisted in local storage or sent to an avatar/lookup service. No directory, short-name resolution, wallet scanning, payment-output derivation or transaction signing is included. Responsive checks cover normal 320/375/414/768px layouts and a 200% root-font simulation using actual functional element bounds, rather than concealing overflow. This simulation does not substitute for native browser zoom or physical-device acceptance.
+Changing the input immediately invalidates old output. Operation counters prevent stale QR checks or PNG callbacks from restoring it. The page preserves the user's preview mode, input text and focus. A result link scrolls an offscreen preview into view. SVG titles describe the character's visible traits.
+
+### Development lab
+
+The lab at `apps/lab/` generates public test addresses, inspects wallet addresses and displays label families, character grids, catalogue entries, recipes and QR metadata. Its fixture module is development tooling, not wallet key management. Creating real BIP352 labels requires the private scan key. A public address does not reveal its label index.
+
+Test-address generation and address inspection have separate controls. Editing either clears its previews and exports. Invalid labels cannot leave ready output behind. Each decode callback owns its operation counter and busy state.
+
+The character grid supports two pins, fixed label accents, grayscale and comparisons at 110, 64 and 32px. Pins survive batch changes but stay in tab memory and contain only reproducible test fixtures. These tools support visual review; they do not prove that people can distinguish every character.
+
+### Shared browser behaviour
+
+Both pages use the libraries and shared UI/export helpers. Neither page has a second rendering algorithm. Fonts and scripts are local. Addresses are not saved in local storage or sent to an avatar or lookup service. The pages provide no directory, short-name lookup, wallet scanning, payment-output derivation or transaction signing.
+
+The public page accepts raw `#sp1…` or `#tsp1…` fragments on load and fragment changes. It clears an address fragment with `history.replaceState` before validation, then uses the normal generation flow. Section fragments stay untouched. Typing or pasting never writes the address into the URL.
+
+Responsive checks cover 320, 375, 414 and 768px layouts and a 200% root-font simulation. They measure control bounds to catch clipped overflow. This simulation is separate from native browser zoom and physical-device testing.
 
 ## Distribution
 
-Both HTML heads link the stylesheet directly, including the local font declarations. The browser discovers styling before application JavaScript executes; styles no longer depend on the development server's JavaScript injection. Font loading may still briefly use a styled fallback font because local fonts use `font-display: swap`.
+Both HTML heads link the stylesheet, including local font declarations, so styling loads before application JavaScript runs. Styles do not depend on JavaScript injection by the dev server. Local fonts use `font-display: swap`, so a styled fallback can appear briefly while they load.
 
 TypeScript builds generate ESM and declaration files. esbuild also produces independent standalone ESM files with dependencies and artwork bundled. Applications using the npm packages can share dependencies; importing both standalone modules includes duplicate bundled core code by design.
 
-The root is private. The two public packages share one version; the QR package depends on that exact core version. Normal releases use npm's `latest` channel; prereleases use `next`. Node 24 is the supported Node runtime. The website follows `main`, so its current source can differ from that released version.
+The root package is private. Both public packages share a version, and QR depends on that exact core version. Stable releases use npm's `latest` channel; prereleases use `next`. Node 24 is the supported runtime. The website follows `main` and can differ from the published packages.
 
-`npm run build` stages tarballs, standalone modules, the portable catalogue, reference data and licence notices under `dist/release/`, then builds both static pages into `dist/site/`. Package-consumer checks compare current package/build fingerprints and output SHA256 metadata to reject stale or missing artifacts. The release workflow retains that staging directory as an internal Actions artifact; the npm job publishes or verifies the exact tested package bytes. Public downloads come from npm. Each npm tarball includes its standalone module, and the core tarball includes the portable catalogue. The [usage guide](usage.md) documents extracting the complete package trees with their licences and notices; these files are not exported npm package subpaths.
+`npm run build` stages tarballs, standalone modules, the portable catalogue, reference data and licence notices in `dist/release/`. It then builds both pages into `dist/site/`. Package-consumer checks compare source/build fingerprints and output SHA256 hashes to reject stale or missing artifacts. The release workflow keeps the tested staging directory as an internal Actions artifact. The npm job publishes or verifies those exact package bytes.
 
-The website's developer links lead to GitHub and the usage guide. SVG and PNG downloads generated from a visitor's address remain available locally. Pages deploys from `main`, so the live experimental generator can be ahead of the released libraries. Tagged releases build and validate a specific commit, publish its npm packages, then publish GitHub notes with npm links and versioned documentation. GitHub Releases have no custom attachments; GitHub provides the normal tagged source-code archives. The GitHub notes job depends on verified npm packages and does not need the internal build artifact. Local build commands do not publish or deploy. See [releasing](releasing.md) and [hosting](hosting.md) for workflow and account configuration.
+Public packages download from npm. Each tarball includes its standalone module; core also includes the portable catalogue. The [usage guide](usage.md) explains how to extract the package trees and retain their licences and notices. The modules and catalogue are local files after extraction, not exported npm subpaths.
+
+The website links to GitHub and the usage guide. Visitors can download their generated SVGs and PNGs locally. Pages deploys from `main`, so the live generator can be ahead of released libraries.
+
+Tagged releases build and validate a specific commit, publish its npm packages, then publish GitHub notes with npm links and versioned docs. GitHub Releases have no custom attachments. GitHub supplies the tagged source-code archives. The notes job requires verified npm packages but does not need the internal build artifact. Local builds do not publish or deploy. See [releasing](releasing.md) and [hosting](hosting.md) for setup.
 
 ## Compatibility decisions
 

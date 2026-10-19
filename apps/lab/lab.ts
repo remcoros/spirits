@@ -49,7 +49,7 @@ function invalidate(message: string, clearFamily = false) {
   $('lab-status').textContent = message;
   if (clearFamily) {
     $('family').replaceChildren();
-    $('family-note').textContent = 'Generate the changed fixture to update its label family.';
+    $('family-note').textContent = 'Generate an address to update the label family.';
   }
 }
 function showAddress(address: string, fixture: boolean) {
@@ -89,9 +89,7 @@ function showAddress(address: string, fixture: boolean) {
   ]
     .map((s) => `<span>${s}</span>`)
     .join('');
-  $('lab-status').textContent = fixture
-    ? 'Public fixture SVGs ready. Never receive funds to these keys. Decode the finished QR to check it.'
-    : 'Inspected address SVGs ready. Decode the finished QR to check the artwork overlay.';
+  $('lab-status').textContent = fixture ? 'Test address ready.' : 'Address ready.';
   for (const id of ['save-spirit', 'save-qr', 'check-qr'])
     $<HTMLButtonElement>(id).disabled = false;
 }
@@ -102,10 +100,10 @@ function family() {
       `<div class="contact-cell">${describedSpirit(fixtureAddress(seed.value, i + 1, network.value as 'mainnet' | 'testnet')).svg}<span>Label ${i + 1}</span></div>`,
   ).join('');
   $('family-note').textContent =
-    `Fixture family “${seed.value}” · all nine character traits stay fixed. Badge and trim vary.`;
+    `Labels for "${seed.value}" keep the same character. Only the badge and trim change.`;
 }
 function generate() {
-  invalidate('Generating a public fixture…', true);
+  invalidate('Generating a test address…', true);
   try {
     showAddress(
       fixtureAddress(seed.value, Number(label.value), network.value as 'mainnet' | 'testnet'),
@@ -113,11 +111,11 @@ function generate() {
     );
     family();
   } catch (error) {
-    invalidate('No fixture exports are ready.', true);
+    invalidate('Enter valid test settings to generate images.', true);
     $('lab-error').textContent =
       error instanceof RangeError
         ? 'Use a whole label number from 1 through 4294967295.'
-        : 'Could not create this fixture. Check the seed, label and network, then try again.';
+        : 'Could not create a test address. Check the test string, label and network, then try again.';
     label.setAttribute('aria-invalid', 'true');
   }
 }
@@ -215,15 +213,13 @@ $('inspect').addEventListener('click', () => {
   } catch (error) {
     $('lab-error').textContent = addressRecovery(error, input.value);
     input.setAttribute('aria-invalid', 'true');
-    $('lab-status').textContent = 'No inspected exports are ready.';
+    $('lab-status').textContent = 'Enter a valid address to preview and download it.';
   }
 });
-input.addEventListener('input', () =>
-  invalidate('Inspect the changed address to update previews and exports.'),
-);
+input.addEventListener('input', () => invalidate('Inspect this address to update the images.'));
 for (const control of [seed, label, network])
   control.addEventListener(control === network ? 'change' : 'input', () =>
-    invalidate('Generate the changed fixture to update previews and exports.', true),
+    invalidate('Generate an address to update the images.', true),
   );
 $('refresh-grid').addEventListener('click', grid);
 $('asset-group').addEventListener('change', catalogue);
@@ -247,13 +243,13 @@ $('check-qr').addEventListener('click', async () => {
   const owns = () => token === serial && operation === decodeSerial && current === value;
   b.disabled = true;
   b.setAttribute('aria-busy', 'true');
-  $('lab-status').textContent = 'Decoding the final rendered image…';
+  $('lab-status').textContent = 'Reading the QR image…';
   try {
     const okay = await verifyQr(value.qr, value.address);
     if (owns())
       $('lab-status').textContent = okay
-        ? 'PASS · The final rendered QR decodes to the exact complete address.'
-        : 'FAIL · The final QR could not be decoded. Try a larger export and test it in your wallet.';
+        ? 'PASS · The QR image decodes to the full address.'
+        : 'FAIL · The QR could not be read. Try again or check it with your wallet.';
   } catch {
     if (owns())
       $('lab-status').textContent =
@@ -281,11 +277,10 @@ $('audit').addEventListener('click', async () => {
       if (i % 32 === 0) await new Promise((r) => setTimeout(r, 0));
     }
     $('audit-result').textContent =
-      `512 inputs · ${seen.size} distinct character recipes\n` +
+      `512 addresses produced ${seen.size} different character recipes.\n` +
       CHARACTER_GROUPS.map(
         (g) => `${g}: ${used[g].size}/${artwork.groups[g].length} variants used`,
-      ).join('\n') +
-      '\nRecipe coverage does not measure human visual distinctness.';
+      ).join('\n');
   } finally {
     b.disabled = false;
     b.removeAttribute('aria-busy');

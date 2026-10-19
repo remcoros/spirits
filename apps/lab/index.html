@@ -27,15 +27,14 @@
         <p>Inspect Silent Payment addresses, explore the artwork, and check the final QR.</p>
       </div>
       <p class="fixture-note">
-        <strong>Development fixtures only.</strong> Generated addresses use reproducible, public
-        test keys. Never receive funds to them. Use an existing public address in the inspector to
-        preview your own Spirit.
+        Generated addresses are for testing. To preview an address from your wallet, use the
+        inspector.
       </p>
       <section class="lab-workspace" aria-label="Address workshop">
         <div class="lab-controls" id="lab-controls">
           <fieldset>
-            <legend>Create a public fixture</legend>
-            <label for="seed">Fixture seed (public test string)</label
+            <legend>Create a test address</legend>
+            <label for="seed">Test string</label
             ><input id="seed" value="hello-spirit" spellcheck="false" />
             <div class="field-row">
               <div>
@@ -54,7 +53,7 @@
                 <label for="network">Network</label
                 ><select id="network">
                   <option value="testnet">Test network · tsp</option>
-                  <option value="mainnet">Mainnet · public test keys</option>
+                  <option value="mainnet">Mainnet · test address</option>
                 </select>
               </div>
             </div>
@@ -76,8 +75,7 @@
             ></textarea
             ><button type="button" class="text-button" id="inspect">Inspect address</button>
             <p class="hint">
-              Inspection changes the preview; the label family below always belongs to your fixture
-              seed.
+              The label family below uses your test string, even while you inspect another address.
             </p>
           </fieldset>
           <p class="error" role="alert" id="lab-error"></p>
@@ -126,10 +124,7 @@
           >
           <label><input id="grayscale" type="checkbox" /> Show artwork in grayscale</label>
         </div>
-        <p class="hint">
-          Pin two characters to compare them across batches. Comparison stays in this tab and is
-          cleared when you reload.
-        </p>
+        <p class="hint">Pin two characters to compare across batches. Reloading clears them.</p>
         <div id="characters" class="contact-grid review-art"></div>
         <section class="comparison-section" aria-labelledby="comparison-title">
           <h3 id="comparison-title">Pinned comparison</h3>
@@ -141,7 +136,7 @@
       </section>
       <section class="lab-section" id="catalogue">
         <div class="section-toolbar">
-          <h2>Every building block.</h2>
+          <h2>Artwork catalogue</h2>
           <select id="asset-group" aria-label="Asset group"></select>
         </div>
         <p class="hint">
@@ -152,8 +147,8 @@
       <section class="lab-section">
         <h2>Variety budget.</h2>
         <p class="hint">
-          The raw combination count is a trait-selection space, not a guarantee of visually unique
-          characters. Similar-looking Spirits and exact collisions remain possible.
+          This counts possible trait combinations. It does not measure how many characters people
+          can tell apart.
         </p>
         <pre id="budget"></pre>
         <button id="audit" class="secondary" type="button">Sample 512 characters</button>
@@ -161,7 +156,7 @@
       </section>
     </main>
     <footer class="wrap site-footer">
-      <p>Made to be<br />taken apart.</p>
+      <p>SPirits<br />lab</p>
       <div>
         <a href="../">Back to the generator ↗</a
         ><a href="https://github.com/remcoros/spirits/blob/main/docs/usage.md">Usage guide ↗</a

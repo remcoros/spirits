@@ -96,7 +96,7 @@ function invalidate() {
   }
   $('address-error').textContent = '';
   input.removeAttribute('aria-invalid');
-  $('preview-title').textContent = 'Yours is waiting.';
+  $('preview-title').textContent = 'Your SPirit';
   $('preview-detail').textContent = '';
   paint();
 }
@@ -148,7 +148,7 @@ function generate(showErrors = false) {
   };
   $('preview-title').textContent = 'Meet your SPirit.';
   $('preview-detail').textContent = examples.includes(spirit.recipe.address)
-    ? 'Example address. Do not send funds to it.'
+    ? 'Example address. Paste your wallet address to receive payments.'
     : '';
   void checkQr(result);
 }
@@ -213,7 +213,7 @@ for (const kind of exportKinds)
       $('output-status').textContent =
         `${currentMode === 'qr' ? 'QR' : 'SPirit'} ${kind.toUpperCase()} downloaded.`;
     } catch {
-      if (owns()) $('output-status').textContent = 'The download failed. Please try again.';
+      if (owns()) $('output-status').textContent = 'The download failed. Try again.';
     } finally {
       if (owns()) {
         button.removeAttribute('aria-busy');

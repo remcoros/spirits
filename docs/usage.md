@@ -2,7 +2,7 @@
 
 SPirits renders deterministic ghost avatars from Bitcoin Silent Payment public addresses. The core includes all artwork and produces self-contained SVG. The separate QR extension embeds the matching character in a standard payment QR.
 
-Requires Node 24 or a modern browser. The `spirits-v0` artwork and mappings remain experimental in `0.1.0`. Pin the package version and use its matching GitHub tag for reproducible output. The live website follows `main`.
+Use Node 24 or a modern browser. The `spirits-v0` artwork and mappings are experimental in `0.1.0`. Pin the package version and use its matching GitHub tag to reproduce output. The live website follows `main`.
 
 ## Find packages and release notes
 
@@ -11,7 +11,7 @@ Requires Node 24 or a modern browser. The `spirits-v0` artwork and mappings rema
 - [GitHub Releases](https://github.com/remcoros/spirits/releases): change notes, npm installation links and versioned documentation. GitHub also provides its automatic source-code ZIP and tarball for each tag.
 - [Source code](https://github.com/remcoros/spirits): implementation, documentation and development tools.
 
-Public packages download from npm. Their tarballs contain the standalone modules, and the core tarball includes the portable artwork catalogue. GitHub Releases have no custom file attachments. Generated avatar and QR image downloads remain available in the website.
+Download packages from npm. Each tarball contains its standalone module; core also includes the portable artwork catalogue. GitHub Releases have no custom attachments. Use the website to download generated avatars and QR images.
 
 ## Install from npm
 
@@ -46,7 +46,7 @@ const plainQr = createSpiritQr(address, { spirit: false });
 
 `svg` and `qr.svg` are SVG strings. `recipe` describes the character and its label accents. `deriveSpirit` returns that recipe without rendering; `parseAddress` validates the address and returns canonical public data. Invalid inputs throw `SpiritAddressError` with an error code.
 
-The core and QR extension work in Node and modern browsers without a DOM, canvas, filesystem or network dependency. Rendering a public address requires no private key and makes no address lookup.
+The core and QR extension work in Node and modern browsers without a DOM, canvas, filesystem or network dependency. Rendering uses only the public address, with no private key or address lookup.
 
 ## Browser PNG export
 
@@ -60,11 +60,11 @@ const { svg } = createSpirit(address, { size: 512 });
 const pngBlob = await svgToPng(svg);
 ```
 
-This adapter requires browser APIs. PNG bytes can differ between rasterisers even when the character is the same.
+This adapter needs browser APIs. Different rasterisers can produce different PNG bytes for the same character.
 
 ## Extract standalone modules and artwork from npm
 
-Use `npm pack` when you want a standalone ES module or the portable catalogue without installing the packages into an application. These commands download the exact `0.1.0` tarballs and extract each complete package into a separate, newly created temporary directory:
+Use `npm pack` to get standalone ES modules or the portable catalogue without installing the packages in an app. These commands download the `0.1.0` tarballs and extract each package into its own new temporary directory:
 
 ```sh
 spirits_extract_dir="$(mktemp -d)"
@@ -87,7 +87,7 @@ The paths below are relative to `$spirits_extract_dir`:
 | `qr/package/dist/spirits-qr.mjs`      | Standalone QR extension, including core and the QR encoder           |
 | `core/package/assets/spirits-v0.json` | Portable, ordered artwork catalogue                                  |
 
-Keep each extracted `package/` tree together when vendoring it. The core includes `README.md`, `LICENSE` and `ASSET-LICENSE`; QR includes `README.md`, `LICENSE` and `THIRD-PARTY.md`. Preserve the modules' bundled legal comments and the required licence notices when redistributing them. Original code is MIT and original artwork is CC0; dependencies retain their own licences.
+Keep each extracted `package/` tree together when copying it into your project. Core includes `README.md`, `LICENSE` and `ASSET-LICENSE`. QR includes `README.md`, `LICENSE` and `THIRD-PARTY.md`. Retain the bundled legal comments and licence notices when redistributing these files. Original code is MIT and original artwork is CC0; dependencies retain their own licences.
 
 For example, if you place the extracted core tree at `./vendor/spirits-core/` and the QR tree at `./vendor/spirits-qr/`, import their standalone files by local path:
 
@@ -99,21 +99,27 @@ const spirit = createSpirit(address);
 const qr = createSpiritQr(address);
 ```
 
-Each module is self-contained; importing both includes two copies of the core code. Normal npm package imports allow a bundler to share dependencies and remove unused functions. The package export maps expose the documented package APIs, not `dist/` or `assets/` subpaths: the extracted files above are local files, not package subpath imports. Use `@remcoros/spirits/browser` for the optional PNG adapter.
+Each module is self-contained, so importing both includes two copies of core. With normal npm imports, a bundler can share dependencies and remove unused functions.
 
-For independent implementations, match the extracted catalogue to the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0/spec/test-vectors.json). Those reference files remain in the tagged source tree. The downloaded `.tgz` files can also be installed directly with `npm install /path/to/package.tgz`; install matching core and QR tarballs together when using both.
+The package export maps expose the documented APIs, not `dist/` or `assets/` subpaths. Import extracted files by local path, as above. Use `@remcoros/spirits/browser` for the PNG adapter.
+
+For an independent implementation, use the extracted catalogue with the same version's [algorithm notes](https://github.com/remcoros/spirits/blob/v0.1.0/docs/algorithm.md) and [test vectors](https://github.com/remcoros/spirits/blob/v0.1.0/spec/test-vectors.json). Those files are in the tagged source tree.
+
+You can also install a downloaded tarball with `npm install /path/to/package.tgz`. Install matching core and QR tarballs together when using both.
 
 ## Open the generator with an address
 
 Append a complete address directly after `#` to prefill the public generator: `https://spirits.boo/#sp1…` or `https://spirits.boo/#tsp1…`. Replace the abbreviated address with a complete one; no parameter name is needed.
 
-The page fills the input, removes the address fragment from the current URL, and validates the address locally. Valid addresses generate a SPirit and prepare the checked payment QR; the SPirit is shown first on arrival. Invalid addresses show the normal input error. Address links also work in an already open tab. Section links such as `#about` are preserved, and editing the input never writes the address into the URL.
+The page fills the input, removes the address fragment from the current URL and validates it locally. A valid address generates a SPirit and starts its QR check. The SPirit appears first. An invalid address shows an input error.
 
-Fragments are excluded from the page request to the host. The original link can still be retained in browser history, bookmarks, or the service used to share it; clearing the current URL does not remove those copies. Query-string address prefilling is not supported.
+Address links also work in an open tab. Section links such as `#about` stay unchanged. Editing the input never writes the address into the URL.
+
+The browser excludes fragments from requests to the host. Browser history, bookmarks or the service used to share a link can retain the original address. Clearing the current URL does not remove those copies. Query strings cannot prefill an address.
 
 ## Address and appearance contracts
 
-Inputs are trimmed, fully validated, and then canonicalised. Supported inputs are BIP352 version 0 `sp` and `tsp` public addresses. A `tsp` prefix does not distinguish signet from other test networks. URI wrappers and unsupported versions are rejected.
+The parser trims inputs, validates them, then canonicalises them. It accepts BIP352 version 0 `sp` and `tsp` public addresses. A `tsp` prefix does not distinguish signet from other test networks. The parser rejects URI wrappers and unsupported versions.
 
 The scan public key fixes the nine core character traits, including signature accessories. Both public keys select a small label badge and trim variation. The same public keys produce the same character across supported network prefixes. Sizes and export formats do not reroll traits.
 

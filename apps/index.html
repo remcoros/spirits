@@ -15,7 +15,7 @@
       content="A familiar little ghost for your Bitcoin Silent Payment address. Create your SPirit and a standard payment QR locally in your browser."
     />
     <meta name="theme-color" content="#f8f6ed" />
-    <title>SPirits — give your silent address some spirit</title>
+    <title>SPirits. Give your address some spirit.</title>
   </head>
   <body>
     <a class="skip-link" href="#generator">Skip to generator</a>
@@ -63,7 +63,7 @@
               >
             </div>
           </form>
-          <p class="privacy-note">Offline. Your address stays in your browser.</p>
+          <p class="privacy-note">Your address stays in your browser.</p>
         </div>
         <div class="output-panel" aria-busy="false" id="output-panel">
           <div class="preview-top">
@@ -78,8 +78,8 @@
             aria-label="Example SPirit; not a generated result"
           ></div>
           <div class="preview-caption">
-            <strong id="preview-title">Yours is waiting.</strong>
-            <p id="preview-detail">An example SPirit. Paste your address to see yours.</p>
+            <strong id="preview-title">Example SPirit</strong>
+            <p id="preview-detail">Paste your address to see yours.</p>
           </div>
           <div class="download-actions">
             <button type="button" class="secondary" id="download-svg" disabled>
@@ -98,38 +98,38 @@
           <div class="section-intro">
             <h2>Quiet payments.<br />Quite a personality.</h2>
             <p>
-              Your address’s scan key shapes the character: its face, colour, outline, and signature
-              accessory. Wallet labels that share that scan key add a small badge and trim
-              variation, while keeping the same ghost.
+              Your address's scan key determines the ghost's face, colour, shape and signature
+              accessory. Wallet labels that share that key keep the same ghost and change its badge
+              and trim.
             </p>
           </div>
           <div class="spirit-parade" id="parade" aria-label="A selection of example Spirits"></div>
           <div class="about-details">
             <p>
               <strong>Made from your address.</strong><br />The same address and artwork version
-              reproduce the same SPirit, wherever you generate it.
+              produce the same SPirit.
             </p>
             <p>
-              <strong>A complete payment QR.</strong><br />The QR carries the complete address.
-              Check it with your Silent Payments wallet before sharing or printing it.
+              <strong>Your address in a QR.</strong><br />The QR contains your full Silent Payment
+              address and matching SPirit.
             </p>
             <p>
-              <strong>A recognition aid.</strong><br />Characters can look alike. Always check the
-              address in your wallet. Shared appearances do not prove ownership.
+              <strong>A visual reference.</strong><br />Characters can look alike, even when their
+              addresses differ.
             </p>
           </div>
         </div>
       </section>
       <section class="developers wrap" id="developers">
         <div>
-          <h2>A little ghost.<br />A small library.</h2>
+          <h2>Add SPirits<br />to your app.</h2>
           <p>
-            Bring SPirits into your own app. The TypeScript core includes the artwork and renders
-            self-contained SVG. Add the QR extension when you need payment codes.
+            The TypeScript core includes the artwork and renders self-contained SVG. Add the QR
+            extension for payment QRs.
           </p>
           <p class="hint">
-            Experimental v0. Artwork and mappings may change before v1. Code: MIT. Original artwork:
-            CC0.
+            The v0 artwork and mappings are experimental and may change. The code is MIT; original
+            artwork is CC0.
           </p>
           <div class="developer-links">
             <a href="https://silentpayments.xyz/">silentpayments.xyz ↗</a>
@@ -144,16 +144,14 @@
 import { createSpiritQr } from '@remcoros/spirits-qr';
 
 const { svg, recipe } = createSpirit(address);
-const qr = createSpiritQr(address);
-
-// Self-contained SVG. No asset server.
-// Same key, same familiar character.</code></pre>
+const qr = createSpiritQr(address);</code></pre>
       </section>
     </main>
     <footer class="wrap site-footer">
       <p>Same address.<br />Same SPirit.</p>
       <div>
-        <span>An open, experimental project.</span><a href="./lab/">Explore the development lab ↗</a
+        <span>An experimental open-source project.</span
+        ><a href="./lab/">Open the development lab ↗</a
         ><a
           href="https://github.com/remcoros/spirits/blob/main/packages/core/assets/spirits-v0.json"
           >Artwork catalogue ↗</a
